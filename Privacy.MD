@@ -1,0 +1,27 @@
+Privacy Policy for CLAWS: Command Line Advanced Warfare System
+
+Effective Date: 3/31/2026
+
+CLAWS: Command Line Advanced Warfare System ("the Game") does not collect, store, or transmit any personal data.
+
+1. Data Collection
+The Game does not collect any personally identifiable information or usage data.
+
+2. Local Storage
+The Game may write data to your local device for purposes such as saving settings, preferences, or game progress. This data remains entirely on your device and is not transmitted externally.
+
+3. No Online Communication
+The Game does not communicate with external servers, APIs, or third-party services.
+
+4. Third-Party Services
+The Game does not integrate with or share data with any third-party services.
+
+5. Children's Privacy
+The Game does not knowingly collect any personal information from users of any age.
+
+6. Changes to This Policy
+This policy may be updated in the future. Any changes will be reflected on this page.
+
+7. Contact
+If you have any questions about this Privacy Policy, you can contact:
+[TBD - Game is not released yet]
