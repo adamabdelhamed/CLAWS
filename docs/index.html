@@ -1,7 +1,677 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>CLAWS</title></head>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CLAWS | Command-Line Battle Simulator</title>
+    <meta name="description" content="CLAWS is a real-time battle simulator rendered entirely in a retro command-line style, where you can command the battlefield from above or dive straight into the fight.">
+    <meta name="theme-color" content="#05070d">
+    <link rel="icon" type="image/png" href="content/Icon256.png">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #05070d;
+            --bg-elevated: rgba(10, 14, 24, 0.88);
+            --panel: rgba(12, 17, 28, 0.92);
+            --border: rgba(255, 255, 255, 0.12);
+            --text: #f5f7fb;
+            --muted: #afbbd2;
+            --accent: #ff8f2d;
+            --accent-strong: #ffb347;
+            --accent-cool: #5fa8ff;
+            --max: 1200px;
+            --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(95, 168, 255, 0.14), transparent 28%),
+                radial-gradient(circle at top right, rgba(255, 143, 45, 0.16), transparent 32%),
+                linear-gradient(180deg, #060810 0%, #05070d 50%, #080b12 100%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(14px);
+            background: rgba(5, 7, 13, 0.72);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-inner,
+        .section-inner,
+        .hero-inner,
+        .footer-inner {
+            width: min(calc(100% - 2rem), var(--max));
+            margin: 0 auto;
+        }
+
+        .header-inner {
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.85rem;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .brand img {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+        }
+
+        .brand-copy {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .brand-copy small {
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .header-links {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .header-links a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .header-links a:hover,
+        .header-links a:focus-visible {
+            color: var(--text);
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(3, 5, 10, 0.96) 0%, rgba(3, 5, 10, 0.78) 42%, rgba(3, 5, 10, 0.5) 65%, rgba(3, 5, 10, 0.9) 100%),
+                linear-gradient(180deg, rgba(5, 7, 13, 0.2) 0%, rgba(5, 7, 13, 0.86) 100%);
+            z-index: 1;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("content/Hero.png");
+            background-position: center center;
+            background-size: cover;
+            opacity: 0.52;
+            z-index: 0;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 2;
+            min-height: min(92vh, 920px);
+            display: grid;
+            align-items: center;
+            padding: 4rem 0 6rem;
+        }
+
+        .hero-copy {
+            max-width: 660px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.8rem;
+            margin: 0 0 1.25rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #d4dded;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        h1,
+        h2,
+        h3,
+        p {
+            margin-top: 0;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            font-size: clamp(2.5rem, 7vw, 5.5rem);
+            line-height: 0.96;
+            text-transform: uppercase;
+        }
+
+        .hero-copy p {
+            margin-bottom: 1.1rem;
+            font-size: clamp(1rem, 2.6vw, 1.2rem);
+            color: #dde5f2;
+            max-width: 60ch;
+        }
+
+        .cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            align-items: center;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .button,
+        .button-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0.85rem 1.3rem;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            text-decoration: none;
+            font-weight: 700;
+            transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+        }
+
+        .button:hover,
+        .button:focus-visible,
+        .button-secondary:hover,
+        .button-secondary:focus-visible {
+            transform: translateY(-1px);
+        }
+
+        .button {
+            background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+            color: #101317;
+            box-shadow: 0 12px 30px rgba(255, 143, 45, 0.28);
+        }
+
+        .button-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--text);
+        }
+
+        .subtle-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .subtle-links a {
+            text-decoration: none;
+        }
+
+        .subtle-links a:hover,
+        .subtle-links a:focus-visible {
+            color: var(--text);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+            max-width: 760px;
+        }
+
+        .stat {
+            padding: 1rem 1.1rem;
+            border-radius: 8px;
+            background: rgba(7, 11, 19, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: var(--shadow);
+        }
+
+        .stat strong {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 1.05rem;
+        }
+
+        .stat span {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .section {
+            padding: 4.5rem 0;
+        }
+
+        .section.alt {
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section-heading {
+            max-width: 760px;
+            margin-bottom: 2rem;
+        }
+
+        .section-heading h2 {
+            margin-bottom: 0.7rem;
+            font-size: clamp(1.9rem, 4vw, 3rem);
+            line-height: 1.05;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 1.02rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .feature {
+            padding: 1.35rem;
+            border-radius: 8px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .feature h3 {
+            margin-bottom: 0.6rem;
+            font-size: 1.08rem;
+        }
+
+        .feature p {
+            margin-bottom: 0;
+            color: var(--muted);
+        }
+
+        .showcase {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.95fr);
+            gap: 1.2rem;
+            align-items: stretch;
+        }
+
+        .showcase-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #060810;
+            box-shadow: var(--shadow);
+        }
+
+        .showcase-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .showcase-card.primary {
+            min-height: 420px;
+        }
+
+        .showcase-card.secondary {
+            min-height: 420px;
+            background:
+                linear-gradient(180deg, rgba(5, 7, 13, 0) 0%, rgba(5, 7, 13, 0.42) 100%),
+                #040507;
+        }
+
+        .showcase-card.secondary img {
+            object-fit: contain;
+            padding: 1.25rem;
+        }
+
+        .showcase-caption {
+            position: absolute;
+            inset: auto 0 0;
+            padding: 1.15rem 1.2rem 1.2rem;
+            background: linear-gradient(180deg, rgba(4, 6, 10, 0) 0%, rgba(4, 6, 10, 0.92) 55%, rgba(4, 6, 10, 0.98) 100%);
+        }
+
+        .showcase-caption strong {
+            display: block;
+            margin-bottom: 0.35rem;
+            font-size: 1rem;
+        }
+
+        .showcase-caption span {
+            color: #d2d9e7;
+        }
+
+        .columns {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.2rem;
+        }
+
+        .copy-panel {
+            padding: 1.4rem;
+            border-radius: 8px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .copy-panel ul {
+            padding-left: 1.2rem;
+            margin: 0;
+        }
+
+        .copy-panel li + li {
+            margin-top: 0.55rem;
+        }
+
+        .copy-panel p,
+        .copy-panel li {
+            color: var(--muted);
+        }
+
+        .closing {
+            text-align: center;
+            padding: 4.5rem 0 5rem;
+        }
+
+        .closing p {
+            max-width: 720px;
+            margin: 0 auto 1.5rem;
+            color: var(--muted);
+            font-size: 1.02rem;
+        }
+
+        .footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            min-height: 74px;
+            padding: 1rem 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .footer a {
+            text-decoration: none;
+        }
+
+        .footer a:hover,
+        .footer a:focus-visible {
+            color: var(--text);
+        }
+
+        @media (max-width: 900px) {
+            .hero-inner {
+                min-height: auto;
+                padding: 3rem 0 4rem;
+            }
+
+            .hero-stats,
+            .feature-grid,
+            .showcase,
+            .columns {
+                grid-template-columns: 1fr;
+            }
+
+            .showcase-card.primary,
+            .showcase-card.secondary {
+                min-height: 320px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-inner,
+            .footer-inner {
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+                padding: 0.9rem 0;
+            }
+
+            .header-links {
+                justify-content: flex-start;
+            }
+
+            .hero {
+                min-height: auto;
+            }
+
+            .hero::before {
+                background:
+                    linear-gradient(180deg, rgba(3, 5, 10, 0.82) 0%, rgba(3, 5, 10, 0.64) 32%, rgba(3, 5, 10, 0.94) 100%);
+            }
+
+            .cta-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .button,
+            .button-secondary {
+                width: 100%;
+            }
+
+            .section {
+                padding: 3.5rem 0;
+            }
+        }
+    </style>
+</head>
 <body>
-<p><a href="Privacy.html">Privacy Policy</a></p>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="#top" aria-label="CLAWS home">
+                <img src="content/Icon256.png" alt="CLAWS icon">
+                <span class="brand-copy">
+                    <span>CLAWS</span>
+                    <small>Command Line Advanced Warfare System</small>
+                </span>
+            </a>
+            <nav class="header-links" aria-label="Primary">
+                <a href="#features">Features</a>
+                <a href="#battlefield">Battlefield</a>
+                <a href="#terminal">Terminal</a>
+                <a href="Privacy.html">Privacy</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="top">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-inner">
+                <div class="hero-copy">
+                    <p class="eyebrow">Real-time command. Front-line control. Terminal-rendered warfare.</p>
+                    <h1 id="hero-title">CLAWS</h1>
+                    <p>CLAWS is a real-time battle simulator that puts you in charge of large-scale combat. Direct units from above, jump into a fighter on the front lines, and drive every turning point yourself.</p>
+                    <p>Rendered entirely in a retro command-line style, every battle plays out live in text and color, turning fast tactical decisions into cinematic chaos.</p>
+                    <div class="cta-row">
+                        <a class="button" href="https://store.steampowered.com/app/4575980" target="_blank" rel="noreferrer">View on Steam</a>
+                        <a class="button-secondary" href="#features">See What CLAWS Does</a>
+                    </div>
+                    <div class="subtle-links" aria-label="Social links">
+                        <a href="https://www.youtube.com/results?search_query=CLAWS+game" target="_blank" rel="noreferrer">YouTube</a>
+                        <a href="https://x.com/search?q=CLAWS%20game&src=typed_query" target="_blank" rel="noreferrer">X</a>
+                    </div>
+                    <div class="hero-stats" aria-label="Highlights">
+                        <div class="stat">
+                            <strong>Command or fight</strong>
+                            <span>Play from a tactical overview or take direct control in the middle of the battle.</span>
+                        </div>
+                        <div class="stat">
+                            <strong>Built for spectacle</strong>
+                            <span>Missile strikes, EMP blasts, drones, heavy weapons, and battlefield-shifting powers.</span>
+                        </div>
+                        <div class="stat">
+                            <strong>True command line</strong>
+                            <span>Runs in a real console window with live action rendered through characters and color.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section alt" id="battlefield">
+            <div class="section-inner">
+                <div class="section-heading">
+                    <h2>Large-scale battles with real control</h2>
+                    <p>Shift the tide of battle in real time, stack devastating systems, and build encounters that feel strategic from a distance and personal up close.</p>
+                </div>
+                <div class="showcase">
+                    <figure class="showcase-card primary">
+                        <img src="content/Capsule-920x430.png" alt="CLAWS key art showing opposing factions surrounding the CLAWS logo">
+                        <figcaption class="showcase-caption">
+                            <strong>Iconic combatants and explosive contrast</strong>
+                            <span>Legendary public-domain-inspired characters, advanced weapons, and a battlefield split between cold precision and raw destruction.</span>
+                        </figcaption>
+                    </figure>
+                    <figure class="showcase-card secondary">
+                        <img src="content/Capsule-600X900.png" alt="CLAWS vertical key art">
+                        <figcaption class="showcase-caption">
+                            <strong>Ready for store and press placement</strong>
+                            <span>Vertical key art complements the hero scene without breaking the dark visual treatment.</span>
+                        </figcaption>
+                    </figure>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="features">
+            <div class="section-inner">
+                <div class="section-heading">
+                    <h2>Take control of the chaos</h2>
+                    <p>Seeded from the Steam description, this page focuses the public pitch around tactical control, escalating systems, and the unusual terminal-native presentation.</p>
+                </div>
+                <div class="feature-grid">
+                    <article class="feature">
+                        <h3>Legendary characters</h3>
+                        <p>Battle alongside iconic public-domain-inspired figures, each built around signature abilities, strengths, and playstyles.</p>
+                    </article>
+                    <article class="feature">
+                        <h3>Weapons and power systems</h3>
+                        <p>Turrets, missile strikes, EMP blasts, drones, and devastating interventions designed for spectacle and battlefield control.</p>
+                    </article>
+                    <article class="feature">
+                        <h3>Mastery progression</h3>
+                        <p>Repeated use sharpens your favorite weapons and abilities, increasing effectiveness, speed, and impact over time.</p>
+                    </article>
+                    <article class="feature">
+                        <h3>Watch Mode</h3>
+                        <p>Observe the battlefield from above, intervene whenever you want, and create cinematic moments of destruction in real time.</p>
+                    </article>
+                    <article class="feature">
+                        <h3>Built-in units and maps</h3>
+                        <p>Jump into curated encounters with pre-built units, battle configurations, and maps tuned for different strategies and scenarios.</p>
+                    </article>
+                    <article class="feature">
+                        <h3>Command-line identity</h3>
+                        <p>CLAWS does not imitate retro visuals from a distance. It runs directly in a console window and pushes the terminal as the actual battlefield.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section alt" id="terminal">
+            <div class="section-inner">
+                <div class="section-heading">
+                    <h2>Built for the terminal</h2>
+                    <p>Every battle is rendered live using text and color. No traditional graphics engine. No fake shell skin. The command line itself becomes the arena.</p>
+                </div>
+                <div class="columns">
+                    <article class="copy-panel">
+                        <h3>What that means in play</h3>
+                        <ul>
+                            <li>Real-time action rendered entirely with characters and color.</li>
+                            <li>Optimized for speed, scale, and clarity in a text-based environment.</li>
+                            <li>Designed for players who want tactical oversight without losing the energy of direct combat.</li>
+                        </ul>
+                    </article>
+                    <article class="copy-panel">
+                        <h3>What you can do with it</h3>
+                        <ul>
+                            <li>Command units and shift formations as the fight unfolds.</li>
+                            <li>Deploy high-impact systems that instantly reshape the battlefield.</li>
+                            <li>Swap between god-level intervention and front-line execution whenever the moment demands it.</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="closing">
+            <div class="section-inner">
+                <div class="section-heading">
+                    <h2>Fast, chaotic, and unexpectedly cinematic</h2>
+                    <p>CLAWS is for players who want large-scale combat, direct control, and a battlefield that feels unlike anything built around a traditional rendering pipeline.</p>
+                </div>
+                <div class="cta-row" style="justify-content:center;">
+                    <a class="button" href="https://store.steampowered.com/app/4575980" target="_blank" rel="noreferrer">Wishlist on Steam</a>
+                    <a class="button-secondary" href="https://www.youtube.com/results?search_query=CLAWS+game" target="_blank" rel="noreferrer">YouTube</a>
+                    <a class="button-secondary" href="https://x.com/search?q=CLAWS%20game&src=typed_query" target="_blank" rel="noreferrer">X</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <span>CLAWS: Command Line Advanced Warfare System</span>
+            <a href="Privacy.html">Privacy Policy</a>
+        </div>
+    </footer>
 </body>
-</html> 
+</html>
