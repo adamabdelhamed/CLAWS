@@ -1,0 +1,156 @@
+html, body, #app {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: #0d1117;
+}
+
+body {
+    font-family: Consolas, "Cascadia Mono", "Courier New", monospace;
+}
+
+.klooie-host {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+}
+
+.home-page {
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 48px;
+    color: #e6edf3;
+    background: #0d1117;
+}
+
+.home-panel {
+    width: min(760px, 100%);
+}
+
+.home-panel h1 {
+    margin: 0 0 24px 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.home-panel p {
+    color: #9aa7b2;
+}
+
+.eyebrow {
+    margin: 0 0 8px 0;
+    color: #58a6ff;
+    font-size: .875rem;
+    text-transform: uppercase;
+}
+
+.app-list {
+    display: grid;
+    gap: 12px;
+}
+
+.app-link {
+    display: grid;
+    grid-template-columns: minmax(120px, max-content) 1fr;
+    gap: 4px 16px;
+    padding: 16px;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #e6edf3;
+    text-decoration: none;
+    background: #161b22;
+}
+
+.app-link:hover,
+.app-link:focus-visible {
+    border-color: #58a6ff;
+    outline: none;
+}
+
+.app-title {
+    font-weight: 700;
+}
+
+.app-route {
+    color: #7ee787;
+}
+
+.app-description {
+    grid-column: 1 / -1;
+    color: #9aa7b2;
+}
+
+.klooie-canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+}
+
+.browser-console-measure {
+    position: absolute;
+    left: -10000px;
+    top: -10000px;
+    visibility: hidden;
+    font-family: Consolas, "Cascadia Mono", "Courier New", monospace;
+    font-size: 1rem;
+    line-height: 1;
+    white-space: pre;
+}
+
+#blazor-error-ui {
+    color-scheme: light only;
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+.loading-progress {
+    position: absolute;
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    inset: 20vh 0 auto 0;
+    margin: 0 auto;
+}
+
+.loading-progress circle {
+    fill: none;
+    stroke: #333;
+    stroke-width: 0.6rem;
+    transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+}
+
+.loading-progress circle:last-child {
+    stroke: #888;
+    stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+    transition: stroke-dasharray 0.05s ease-in-out;
+}
+
+.loading-progress-text {
+    position: absolute;
+    color: #ddd;
+    text-align: center;
+    font-weight: bold;
+    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
+}
+
+.loading-progress-text:after {
+    content: var(--blazor-load-percentage-text, "Loading");
+}

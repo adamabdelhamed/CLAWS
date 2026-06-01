@@ -1,0 +1,24 @@
+﻿{
+  "Header": {
+    "TrackFileName": "SirensLair.mp3",
+    "Mp3Sha256Hex": "a76abd1dbb3934e019e113c34619cedc65aea15a96d0cab4bdefd2d4624ea60c",
+    "ScoreHz": 30,
+    "DurationSeconds": 264.1240816,
+    "GeneratedAtUtc": "2026-02-09T17:46:52.6888902+00:00",
+    "Version": "0.1"
+  },
+  "Channels": [
+    {
+      "Key": "Vocal01",
+      "FileName": "Score_SirensLair.Vocal01.txt"
+    },
+    {
+      "Key": "Kick01",
+      "FileName": "Score_SirensLair.Kick01.txt"
+    },
+    {
+      "Key": "Guitar01",
+      "FileName": "Score_SirensLair.Guitar01.txt"
+    }
+  ]
+}

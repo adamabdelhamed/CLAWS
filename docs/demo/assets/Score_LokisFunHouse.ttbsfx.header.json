@@ -1,0 +1,24 @@
+﻿{
+  "Header": {
+    "TrackFileName": "Score_LokisFunHouse.mp3",
+    "Mp3Sha256Hex": "413e1bac20d7d2a2566826eff3edbacdf90f2f97ad4a53beff06c7beb9d658b0",
+    "ScoreHz": 30,
+    "DurationSeconds": 137.6399999,
+    "GeneratedAtUtc": "2026-02-20T14:01:02.2650531+00:00",
+    "Version": "0.1"
+  },
+  "Channels": [
+    {
+      "Key": "Guitar",
+      "FileName": "Score_LokisFunHouse.Guitar.txt"
+    },
+       {
+      "Key": "Bass",
+      "FileName": "Score_LokisFunHouse.Bass.txt"
+    },
+       {
+      "Key": "Drums",
+      "FileName": "Score_LokisFunHouse.Drums.txt"
+    }
+  ]
+}
