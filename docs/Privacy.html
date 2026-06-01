@@ -1,41 +1,344 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Privacy Policy - CLAWS</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CLAWS | Privacy Policy</title>
+	<meta name="description" content="Privacy Policy for CLAWS: Command Line Advanced Warfare System.">
+	<meta name="theme-color" content="#05070d">
+	<link rel="icon" type="image/png" href="content/Icon256.png">
+	<style>
+		:root {
+			color-scheme: dark;
+			--bg: #05070d;
+			--bg-elevated: rgba(10, 14, 24, 0.88);
+			--panel: rgba(12, 17, 28, 0.92);
+			--border: rgba(255, 255, 255, 0.12);
+			--text: #f5f7fb;
+			--muted: #afbbd2;
+			--accent: #20b010;
+			--accent-strong: #f04000;
+			--max: 1200px;
+			--shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html {
+			scroll-behavior: smooth;
+		}
+
+		body {
+			margin: 0;
+			font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+			background:
+				radial-gradient(circle at top left, rgba(95, 168, 255, 0.14), transparent 28%),
+				radial-gradient(circle at top right, rgba(240, 64, 0, 0.16), transparent 32%),
+				linear-gradient(180deg, #060810 0%, #05070d 50%, #080b12 100%);
+			color: var(--text);
+			line-height: 1.6;
+		}
+
+		a {
+			color: inherit;
+		}
+
+		.site-header {
+			position: sticky;
+			top: 0;
+			z-index: 20;
+			backdrop-filter: blur(14px);
+			background: rgba(5, 7, 13, 0.72);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+		}
+
+		.header-inner,
+		.page-inner,
+		.footer-inner {
+			width: min(calc(100% - 2rem), var(--max));
+			margin: 0 auto;
+		}
+
+		.header-inner {
+			min-height: 72px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+		}
+
+		.brand {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.85rem;
+			text-decoration: none;
+			font-weight: 700;
+			letter-spacing: 0;
+		}
+
+		.brand img {
+			width: 42px;
+			height: 42px;
+			border-radius: 8px;
+			box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+		}
+
+		.brand-copy {
+			display: flex;
+			flex-direction: column;
+			line-height: 1.1;
+		}
+
+		.brand-copy small {
+			color: var(--muted);
+			font-size: 0.8rem;
+			font-weight: 500;
+		}
+
+		.header-links {
+			display: flex;
+			align-items: center;
+			gap: 0.9rem;
+			flex-wrap: wrap;
+			justify-content: flex-end;
+		}
+
+		.header-links a {
+			text-decoration: none;
+			color: var(--muted);
+			font-size: 0.95rem;
+		}
+
+		.header-links a:hover,
+		.header-links a:focus-visible {
+			color: var(--text);
+		}
+
+		.page {
+			padding: 3.5rem 0 4.5rem;
+		}
+
+		.page-heading {
+			max-width: 860px;
+			margin: 0 0 2rem;
+		}
+
+		.eyebrow {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.45rem 0.8rem;
+			margin: 0 0 1rem;
+			border-radius: 999px;
+			background: rgba(255, 255, 255, 0.08);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			color: #d4dded;
+			font-size: 0.9rem;
+			font-weight: 600;
+		}
+
+		h1,
+		h2,
+		p {
+			margin-top: 0;
+		}
+
+		h1 {
+			margin-bottom: 0.75rem;
+			font-size: clamp(2rem, 5vw, 3.2rem);
+			line-height: 1.05;
+		}
+
+		.lead {
+			color: #dde5f2;
+			max-width: 70ch;
+			font-size: 1.05rem;
+			margin-bottom: 0;
+		}
+
+		.policy-list {
+			display: grid;
+			gap: 1rem;
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.policy-list li {
+			padding: 1.35rem;
+			border-radius: 8px;
+			background: var(--panel);
+			border: 1px solid var(--border);
+			box-shadow: var(--shadow);
+		}
+
+		.policy-list h2 {
+			margin-bottom: 0.6rem;
+			font-size: 1.2rem;
+		}
+
+		.policy-list p,
+		.policy-list li,
+		.policy-list ul {
+			color: var(--muted);
+		}
+
+		.policy-list ul {
+			margin: 0.75rem 0 0;
+			padding-left: 1.2rem;
+		}
+
+		.policy-list ul li {
+			padding: 0;
+			border: 0;
+			background: transparent;
+			box-shadow: none;
+			margin: 0;
+		}
+
+		.policy-list ul li + li {
+			margin-top: 0.45rem;
+		}
+
+		.footer {
+			border-top: 1px solid rgba(255, 255, 255, 0.08);
+			background: rgba(255, 255, 255, 0.02);
+		}
+
+		.footer-inner {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+			min-height: 74px;
+			padding: 1rem 0;
+			color: var(--muted);
+			font-size: 0.92rem;
+		}
+
+		.footer a {
+			text-decoration: none;
+		}
+
+		.footer a:hover,
+		.footer a:focus-visible {
+			color: var(--text);
+		}
+
+		@media (max-width: 640px) {
+			.header-inner,
+			.footer-inner {
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				padding: 0.9rem 0;
+			}
+
+			.header-links {
+				justify-content: flex-start;
+			}
+
+			.page {
+				padding: 2.5rem 0 3.2rem;
+			}
+		}
+	</style>
 </head>
 <body>
-    <pre>
-Privacy Policy for CLAWS: Command Line Advanced Warfare System
+	<header class="site-header">
+		<div class="header-inner">
+			<a class="brand" href="index.html" aria-label="CLAWS home">
+				<img src="content/Icon256.png" alt="CLAWS icon">
+				<span class="brand-copy">
+					<span>CLAWS</span>
+					<small>Command Line Advanced Warfare System</small>
+				</span>
+			</a>
+			<nav class="header-links" aria-label="Primary">
+				<a href="index.html">Home</a>
+				<a href="demo/">Play Demo</a>
+				<a href="https://store.steampowered.com/app/4575980" target="_blank" rel="noreferrer">Steam</a>
+				<a href="Privacy.html" aria-current="page">Privacy</a>
+			</nav>
+		</div>
+	</header>
 
-Effective Date: [Insert Date]
+	<main class="page">
+		<div class="page-inner">
+			<header class="page-heading">
+				<p class="eyebrow">Legal</p>
+				<h1>Privacy Policy</h1>
+				<p class="lead"><strong>Effective Date:</strong> June 1, 2026</p>
+				<p class="lead">CLAWS: Command Line Advanced Warfare System ("the Game") is designed to respect your privacy. This Privacy Policy explains how data is handled when you use the Game.</p>
+			</header>
 
-CLAWS: Command Line Advanced Warfare System ("the Game") is designed to respect your privacy. This Privacy Policy explains how data is handled when you use the Game.
+			<ol class="policy-list">
+				<li>
+					<h2>1. Data Collection</h2>
+					<p>The Game does not collect, store, or transmit personally identifiable information (PII).</p>
+					<p>The Game may collect anonymous gameplay telemetry to help improve game balance, performance, stability, and user experience. Examples may include:</p>
+					<ul>
+						<li>Game session starts and ends</li>
+						<li>Aggregate gameplay statistics</li>
+						<li>Feature and menu usage</li>
+						<li>Performance metrics</li>
+						<li>Error and diagnostic information</li>
+					</ul>
+					<p>This telemetry is designed to be anonymous and is not intended to identify individual users.</p>
+				</li>
 
-1. Data Collection
-The Game does not collect, store, or transmit any personally identifiable information (PII) or gameplay analytics.
+				<li>
+					<h2>2. Telemetry Controls</h2>
+					<p>Anonymous telemetry is enabled by default and can be disabled at any time through the Game's settings menu.</p>
+					<p>When telemetry is disabled, the Game will stop transmitting telemetry data.</p>
+				</li>
 
-2. Local Storage
-The Game may write data to your local device for purposes such as saving settings, preferences, or game progress. This data remains on your device unless you enable external platform features such as cloud synchronization.
+				<li>
+					<h2>3. Local Storage</h2>
+					<p>The Game may write data to your local device for purposes such as saving settings, preferences, game progress, and telemetry preferences. This data remains on your device unless you enable external platform features such as cloud synchronization.</p>
+				</li>
 
-3. Steam Cloud Saves
-When playing the Game through Steam, save data may be stored using Steam Cloud features provided by Valve Corporation. This data is managed by Steam and subject to Steam’s own privacy policy. The Game itself does not include any personally identifiable information in save data.
+				<li>
+					<h2>4. Steam Cloud Saves</h2>
+					<p>When playing the Game through Steam, save data may be stored using Steam Cloud features provided by Valve Corporation. This data is managed by Steam and subject to Steam's own privacy policy.</p>
+					<p>The Game does not intentionally include personally identifiable information in save data.</p>
+				</li>
 
-4. No Direct Online Communication
-The Game does not directly communicate with external servers, APIs, or third-party services.
+				<li>
+					<h2>5. Online Services</h2>
+					<p>The Game may communicate with online services solely for the purpose of transmitting anonymous telemetry and diagnostic information described in this Privacy Policy.</p>
+					<p>The Game does not use these services to collect personally identifiable information.</p>
+				</li>
 
-5. Third-Party Platforms
-If you access the Game through a third-party platform (such as Steam), that platform may collect and process data according to its own policies. The Game does not control or have access to this data.
+				<li>
+					<h2>6. Third-Party Platforms</h2>
+					<p>If you access the Game through a third-party platform (such as Steam), that platform may collect and process data according to its own policies. The Game does not control or have access to this data except as explicitly described in this Privacy Policy.</p>
+				</li>
 
-6. Children's Privacy
-The Game does not knowingly collect any personal information from users of any age.
+				<li>
+					<h2>7. Children's Privacy</h2>
+					<p>The Game does not knowingly collect personal information from users of any age.</p>
+				</li>
 
-7. Changes to This Policy
-This Privacy Policy may be updated in the future. Any changes will be reflected on this page.
+				<li>
+					<h2>8. Changes to This Policy</h2>
+					<p>This Privacy Policy may be updated in the future. Any changes will be reflected on this page.</p>
+				</li>
 
-8. Contact
-If you have any questions about this Privacy Policy, you may contact:
-claws.cli.game@gmail.com
-    </pre>
+				<li>
+					<h2>9. Contact</h2>
+					<p>If you have any questions about this Privacy Policy, you may contact <a href="mailto:claws.cli.game@gmail.com">claws.cli.game@gmail.com</a>.</p>
+				</li>
+			</ol>
+		</div>
+	</main>
+
+	<footer class="footer">
+		<div class="footer-inner">
+			<span>CLAWS: Command Line Advanced Warfare System</span>
+			<a href="Privacy.html">Privacy Policy</a>
+		</div>
+	</footer>
 </body>
 </html>
