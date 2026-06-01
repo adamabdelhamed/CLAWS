@@ -1,20 +1,27 @@
-window.klooieMobileOptions = {
-    requireHorizontal: true,
-    touchTriggerToggle: true,
-
-    configure(options)
-    {
-        options = options || {};
-        this.requireHorizontal = !!options.requireHorizontal;
-        this.touchTriggerToggle = !!options.touchTriggerToggle;
-        window.dispatchEvent(new Event("klooie-mobile-options-changed"));
-    }
+window.klooiePwa = window.klooiePwa || {
+    deferredInstallPrompt: undefined,
+    installPromptEnabled: false,
+    installed: window.matchMedia?.("(display-mode: fullscreen)")?.matches || window.matchMedia?.("(display-mode: standalone)")?.matches || navigator.standalone === true
 };
+
+window.addEventListener("beforeinstallprompt", event => {
+    if (!window.klooiePwa.installPromptEnabled) return;
+
+    event.preventDefault();
+    window.klooiePwa.deferredInstallPrompt = event;
+    window.dispatchEvent(new Event("klooie-pwa-install-available"));
+});
+
+window.addEventListener("appinstalled", () => {
+    window.klooiePwa.installed = true;
+    window.klooiePwa.deferredInstallPrompt = undefined;
+    window.dispatchEvent(new Event("klooie-pwa-installed"));
+});
 
 window.klooieFramePump = {
     nextId: 1,
     pumps: {},
-    start(dotNetRef, hostElement) {
+    start(dotNetRef, hostElement, mobileOptions) {
         const id = this.nextId++;
         const canvas = hostElement.querySelector("canvas");
         const state = {
@@ -34,9 +41,11 @@ window.klooieFramePump = {
             renderer: undefined,
             knownGamepads: new Map(),
             touchController: undefined,
+            mobileOptions: normalizeMobileOptions(mobileOptions),
             listeners: []
         };
         this.pumps[id] = state;
+        window.klooiePwa.installPromptEnabled = window.klooiePwa.installPromptEnabled || (state.mobileOptions.requireHorizontal && shouldShowTouchController());
         setupKeyboard(hostElement, state);
         setupGamepads(state);
         setupTouchController(hostElement, state);
@@ -464,6 +473,14 @@ function teardownGamepads(state) {
     state.knownGamepads?.clear();
 }
 
+function normalizeMobileOptions(options) {
+    options = options || {};
+    return {
+        requireHorizontal: !!(options.requireHorizontal ?? options.RequireHorizontal),
+        touchTriggerToggle: !!(options.touchTriggerToggle ?? options.TouchTriggerToggle)
+    };
+}
+
 function setupTouchController(hostElement, state)
 {
     if (!shouldShowTouchController()) return;
@@ -477,6 +494,11 @@ function setupTouchController(hostElement, state)
                 <div class="klooie-horizontal-required-icon">↻</div>
                 <div>Flip your phone horizontally</div>
             </div>
+        </div>
+        <div class="klooie-mobile-actions" hidden>
+            <button type="button" class="klooie-mobile-fullscreen">Fullscreen</button>
+            <button type="button" class="klooie-mobile-install" hidden>Install</button>
+            <button type="button" class="klooie-mobile-dismiss" aria-label="Dismiss">X</button>
         </div>
         <div class="klooie-touch-stick-zone">
             <div class="klooie-touch-stick-base">
@@ -508,17 +530,37 @@ function setupTouchController(hostElement, state)
     const stickZone = overlay.querySelector(".klooie-touch-stick-zone");
     const stickBase = overlay.querySelector(".klooie-touch-stick-base");
     const stickKnob = overlay.querySelector(".klooie-touch-stick-knob");
+    const mobileActions = overlay.querySelector(".klooie-mobile-actions");
+    const fullscreenButton = overlay.querySelector(".klooie-mobile-fullscreen");
+    const installButton = overlay.querySelector(".klooie-mobile-install");
+    const dismissButton = overlay.querySelector(".klooie-mobile-dismiss");
     let stickPointerId = undefined;
     let stickBaseCenterX = 0;
     let stickBaseCenterY = 0;
+    let mobileActionsDismissed = sessionStorage.getItem("klooie-mobile-actions-dismissed") === "true";
     const stickRadius = () => Math.max(42, Math.min(72, stickBase.getBoundingClientRect().width * 0.42));
 
     const updateMobileMode = () =>
     {
-        const requireHorizontal = !!window.klooieMobileOptions?.requireHorizontal;
-        const portrait = window.innerHeight > window.innerWidth;
+        const requireHorizontal = state.mobileOptions.requireHorizontal;
+        const portrait = isPortraitViewport();
         overlay.classList.toggle("requires-horizontal", requireHorizontal);
         overlay.classList.toggle("is-portrait", requireHorizontal && portrait);
+        hostElement.classList.toggle("klooie-mobile-portrait-blocked", requireHorizontal && portrait);
+        updateMobileActions();
+    };
+
+    const updateMobileActions = () =>
+    {
+        const active = state.mobileOptions.requireHorizontal && !isPortraitViewport() && !mobileActionsDismissed;
+        const canInstall = !!window.klooiePwa?.deferredInstallPrompt && !window.klooiePwa.installed;
+        const canManualInstall = isIosBrowser() && !window.klooiePwa.installed;
+        const fullscreenActive = isFullscreenActive();
+        const canFullscreen = canRequestFullscreen();
+        fullscreenButton.hidden = fullscreenActive || !canFullscreen;
+        installButton.hidden = !canInstall && !canManualInstall;
+        installButton.textContent = canInstall ? "Install" : "Add to Home Screen";
+        mobileActions.hidden = !active || ((fullscreenActive || !canFullscreen) && !canInstall && !canManualInstall);
     };
 
     const clampStickBaseCenter = () =>
@@ -610,7 +652,7 @@ function setupTouchController(hostElement, state)
         event.currentTarget.setPointerCapture?.(event.pointerId);
 
         const isTrigger = index === 6 || index === 7;
-        if (isTrigger && window.klooieMobileOptions?.touchTriggerToggle) {
+        if (isTrigger && state.mobileOptions.touchTriggerToggle) {
             buttons[index] = !buttons[index];
         } else {
             buttons[index] = true;
@@ -627,7 +669,7 @@ function setupTouchController(hostElement, state)
         event.preventDefault();
 
         const isTrigger = index === 6 || index === 7;
-        if (isTrigger && window.klooieMobileOptions?.touchTriggerToggle) return;
+        if (isTrigger && state.mobileOptions.touchTriggerToggle) return;
 
         buttons[index] = false;
         event.currentTarget.classList.remove("is-pressed");
@@ -644,7 +686,13 @@ function setupTouchController(hostElement, state)
 
     window.addEventListener("resize", updateMobileMode);
     window.addEventListener("orientationchange", updateMobileMode);
-    window.addEventListener("klooie-mobile-options-changed", updateMobileMode);
+    document.addEventListener("fullscreenchange", updateMobileMode);
+    document.addEventListener("webkitfullscreenchange", updateMobileMode);
+    window.addEventListener("klooie-pwa-install-available", updateMobileMode);
+    window.addEventListener("klooie-pwa-installed", updateMobileMode);
+    fullscreenButton.addEventListener("pointerdown", requestFullscreenFromButton);
+    installButton.addEventListener("pointerdown", promptPwaInstall);
+    dismissButton.addEventListener("pointerdown", dismissMobileActions);
     updateMobileMode();
 
     state.touchController = {
@@ -666,10 +714,44 @@ function setupTouchController(hostElement, state)
         {
             window.removeEventListener("resize", updateMobileMode);
             window.removeEventListener("orientationchange", updateMobileMode);
-            window.removeEventListener("klooie-mobile-options-changed", updateMobileMode);
+            document.removeEventListener("fullscreenchange", updateMobileMode);
+            document.removeEventListener("webkitfullscreenchange", updateMobileMode);
+            window.removeEventListener("klooie-pwa-install-available", updateMobileMode);
+            window.removeEventListener("klooie-pwa-installed", updateMobileMode);
+            hostElement.classList.remove("klooie-mobile-portrait-blocked");
             overlay.remove();
         }
     };
+
+    function requestFullscreenFromButton(event) {
+        event.preventDefault();
+        requestFullscreen(hostElement).finally(updateMobileMode);
+    }
+
+    async function promptPwaInstall(event) {
+        event.preventDefault();
+        const prompt = window.klooiePwa?.deferredInstallPrompt;
+        if (!prompt) {
+            if (isIosBrowser()) window.alert("Use the browser Share button, then choose Add to Home Screen.");
+            return;
+        }
+
+        window.klooiePwa.deferredInstallPrompt = undefined;
+        try {
+            await prompt.prompt();
+            await prompt.userChoice;
+        } catch {
+        }
+
+        updateMobileMode();
+    }
+
+    function dismissMobileActions(event) {
+        event.preventDefault();
+        mobileActionsDismissed = true;
+        sessionStorage.setItem("klooie-mobile-actions-dismissed", "true");
+        updateMobileMode();
+    }
 }
 
 function teardownTouchController(state) {
@@ -683,6 +765,40 @@ function shouldShowTouchController() {
     const hoverless = window.matchMedia?.("(hover: none)")?.matches;
     const touchPoints = navigator.maxTouchPoints || 0;
     return !!(coarse || hoverless || touchPoints > 0);
+}
+
+function isPortraitViewport() {
+    const viewport = window.visualViewport;
+    const width = viewport?.width || window.innerWidth || document.documentElement.clientWidth;
+    const height = viewport?.height || window.innerHeight || document.documentElement.clientHeight;
+    return height > width;
+}
+
+function isFullscreenActive() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement) ||
+        window.matchMedia?.("(display-mode: fullscreen)")?.matches ||
+        window.matchMedia?.("(display-mode: standalone)")?.matches ||
+        navigator.standalone === true;
+}
+
+function canRequestFullscreen() {
+    const element = document.documentElement;
+    return !!(element.requestFullscreen || element.webkitRequestFullscreen);
+}
+
+function isIosBrowser() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+async function requestFullscreen(element) {
+    try {
+        if (element.requestFullscreen) {
+            await element.requestFullscreen({ navigationUI: "hide" });
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+        }
+    } catch {
+    }
 }
 
 function preventDefault(event) {

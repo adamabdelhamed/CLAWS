@@ -3,28 +3,29 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>klooie</title>
     <base href="./" />
-    <link href="_framework/dotnet.ybgcb9b7o9.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-rvxXfrABf60cNju38PQdIwg2ZeurFVeYi5qM0VTLhRQ=" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link href="_framework/dotnet.3l212j50xt.js" rel="preload" as="script" fetchpriority="high" crossorigin="anonymous" integrity="sha256-qX5BUJSsKZuSLYL1Ya+zB5j/xruswvms59xzUMsygz4=" />
     <link rel="stylesheet" href="css/app.css" />
     <script type="importmap">{
   "imports": {
     "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.66stpp682q.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.3l212j50xt.js",
     "./_framework/dotnet.native.js": "./_framework/dotnet.native.8hxsvtlt65.js",
-    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.r2kbxkuujc.js",
-    "./_framework/dotnet.js": "./_framework/dotnet.ybgcb9b7o9.js"
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.r2kbxkuujc.js"
   },
   "scopes": {},
   "integrity": {
     "./_framework/blazor.webassembly.66stpp682q.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
     "./_framework/blazor.webassembly.js": "sha256-3lCWrko3zwspV40aQhs2S/IMkRSarnHRKIdkHhuXIBA=",
-    "./_framework/dotnet.js": "sha256-rvxXfrABf60cNju38PQdIwg2ZeurFVeYi5qM0VTLhRQ=",
+    "./_framework/dotnet.3l212j50xt.js": "sha256-qX5BUJSsKZuSLYL1Ya+zB5j/xruswvms59xzUMsygz4=",
+    "./_framework/dotnet.js": "sha256-qX5BUJSsKZuSLYL1Ya+zB5j/xruswvms59xzUMsygz4=",
     "./_framework/dotnet.native.8hxsvtlt65.js": "sha256-hMSIvsm+UgW4xIyz4LXkN+ovwJ6oaYqDnL8JNwnoh14=",
     "./_framework/dotnet.native.js": "sha256-hMSIvsm+UgW4xIyz4LXkN+ovwJ6oaYqDnL8JNwnoh14=",
     "./_framework/dotnet.runtime.js": "sha256-YyudibIWETMKrLb+nAZdJ+xDY7HY6BWf6s32UAdcvCU=",
-    "./_framework/dotnet.runtime.r2kbxkuujc.js": "sha256-YyudibIWETMKrLb+nAZdJ+xDY7HY6BWf6s32UAdcvCU=",
-    "./_framework/dotnet.ybgcb9b7o9.js": "sha256-rvxXfrABf60cNju38PQdIwg2ZeurFVeYi5qM0VTLhRQ="
+    "./_framework/dotnet.runtime.r2kbxkuujc.js": "sha256-YyudibIWETMKrLb+nAZdJ+xDY7HY6BWf6s32UAdcvCU="
   }
 }</script>
 </head>
@@ -44,6 +45,11 @@
         <span class="dismiss">X</span>
     </div>
     <script src="klooieFramePump.js"></script>
+    <script>
+        if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+            navigator.serviceWorker.register("service-worker.js").catch(() => {});
+        }
+    </script>
     <script src="_framework/blazor.webassembly.66stpp682q.js"></script>
 </body>
 
