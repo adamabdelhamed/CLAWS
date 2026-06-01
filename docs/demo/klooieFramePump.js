@@ -1,3 +1,16 @@
+window.klooieMobileOptions = {
+    requireHorizontal: true,
+    touchTriggerToggle: true,
+
+    configure(options)
+    {
+        options = options || {};
+        this.requireHorizontal = !!options.requireHorizontal;
+        this.touchTriggerToggle = !!options.touchTriggerToggle;
+        window.dispatchEvent(new Event("klooie-mobile-options-changed"));
+    }
+};
+
 window.klooieFramePump = {
     nextId: 1,
     pumps: {},
@@ -451,21 +464,30 @@ function teardownGamepads(state) {
     state.knownGamepads?.clear();
 }
 
-function setupTouchController(hostElement, state) {
+function setupTouchController(hostElement, state)
+{
     if (!shouldShowTouchController()) return;
 
     const overlay = document.createElement("div");
     overlay.className = "klooie-touch-controller";
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
+        <div class="klooie-horizontal-required">
+            <div class="klooie-horizontal-required-card">
+                <div class="klooie-horizontal-required-icon">↻</div>
+                <div>Flip your phone horizontally</div>
+            </div>
+        </div>
         <div class="klooie-touch-stick-zone">
             <div class="klooie-touch-stick-base">
                 <div class="klooie-touch-stick-knob"></div>
             </div>
         </div>
-        <div class="klooie-touch-shoulders">
-            <button type="button" data-button="4">LB</button>
+        <div class="klooie-touch-shoulders klooie-touch-left-shoulders">
             <button type="button" data-button="6">LT</button>
+            <button type="button" data-button="4">LB</button>
+        </div>
+        <div class="klooie-touch-shoulders klooie-touch-right-shoulders">
             <button type="button" data-button="7">RT</button>
             <button type="button" data-button="5">RB</button>
         </div>
@@ -491,7 +513,30 @@ function setupTouchController(hostElement, state) {
     let stickBaseCenterY = 0;
     const stickRadius = () => Math.max(42, Math.min(72, stickBase.getBoundingClientRect().width * 0.42));
 
-    const resetStick = () => {
+    const updateMobileMode = () =>
+    {
+        const requireHorizontal = !!window.klooieMobileOptions?.requireHorizontal;
+        const portrait = window.innerHeight > window.innerWidth;
+        overlay.classList.toggle("requires-horizontal", requireHorizontal);
+        overlay.classList.toggle("is-portrait", requireHorizontal && portrait);
+    };
+
+    const clampStickBaseCenter = () =>
+    {
+        const zoneRect = stickZone.getBoundingClientRect();
+        const half = stickBase.offsetWidth / 2;
+        stickBaseCenterX = clamp(stickBaseCenterX, zoneRect.left + half, zoneRect.right - half);
+        stickBaseCenterY = clamp(stickBaseCenterY, zoneRect.top + half, zoneRect.bottom - half);
+    };
+
+    const moveStickBase = () =>
+    {
+        const zoneRect = stickZone.getBoundingClientRect();
+        stickBase.style.transform = `translate(${stickBaseCenterX - zoneRect.left - stickBase.offsetWidth / 2}px, ${stickBaseCenterY - zoneRect.top - stickBase.offsetHeight / 2}px)`;
+    };
+
+    const resetStick = () =>
+    {
         axes[0] = 0;
         axes[1] = 0;
         stickPointerId = undefined;
@@ -500,41 +545,55 @@ function setupTouchController(hostElement, state) {
         state.requestImmediateFrame?.();
     };
 
-    const updateStick = (event) => {
+    const updateStick = (event) =>
+    {
         if (stickPointerId !== event.pointerId) return;
         event.preventDefault();
+
         const radius = stickRadius();
-        const dx = event.clientX - stickBaseCenterX;
-        const dy = event.clientY - stickBaseCenterY;
-        const distance = Math.hypot(dx, dy);
-        const clampedDistance = Math.min(distance, radius);
-        const unitX = distance > 0 ? dx / distance : 0;
-        const unitY = distance > 0 ? dy / distance : 0;
-        const knobX = unitX * clampedDistance;
-        const knobY = unitY * clampedDistance;
+        clampStickBaseCenter();
+
+        let dx = event.clientX - stickBaseCenterX;
+        let dy = event.clientY - stickBaseCenterY;
+        let distance = Math.hypot(dx, dy);
+        let clampedDistance = Math.min(distance, radius);
+        let unitX = distance > 0 ? dx / distance : 0;
+        let unitY = distance > 0 ? dy / distance : 0;
+        let knobX = unitX * clampedDistance;
+        let knobY = unitY * clampedDistance;
 
         if (distance > radius) {
             stickBaseCenterX = event.clientX - knobX;
             stickBaseCenterY = event.clientY - knobY;
+            clampStickBaseCenter();
+
+            dx = event.clientX - stickBaseCenterX;
+            dy = event.clientY - stickBaseCenterY;
+            distance = Math.hypot(dx, dy);
+            clampedDistance = Math.min(distance, radius);
+            unitX = distance > 0 ? dx / distance : 0;
+            unitY = distance > 0 ? dy / distance : 0;
+            knobX = unitX * clampedDistance;
+            knobY = unitY * clampedDistance;
         }
 
-        const zoneRect = stickZone.getBoundingClientRect();
-        stickBase.style.transform = `translate(${stickBaseCenterX - zoneRect.left - stickBase.offsetWidth / 2}px, ${stickBaseCenterY - zoneRect.top - stickBase.offsetHeight / 2}px)`;
+        moveStickBase();
         stickKnob.style.transform = `translate(${knobX}px, ${knobY}px)`;
         axes[0] = clamp(knobX / radius, -1, 1);
         axes[1] = clamp(knobY / radius, -1, 1);
         state.requestImmediateFrame?.();
     };
 
-    const stickDown = (event) => {
+    const stickDown = (event) =>
+    {
         if (stickPointerId !== undefined) return;
         event.preventDefault();
         stickPointerId = event.pointerId;
         stickZone.setPointerCapture?.(event.pointerId);
-        const zoneRect = stickZone.getBoundingClientRect();
         stickBaseCenterX = event.clientX;
         stickBaseCenterY = event.clientY;
-        stickBase.style.transform = `translate(${stickBaseCenterX - zoneRect.left - stickBase.offsetWidth / 2}px, ${stickBaseCenterY - zoneRect.top - stickBase.offsetHeight / 2}px)`;
+        clampStickBaseCenter();
+        moveStickBase();
         updateStick(event);
     };
 
@@ -543,20 +602,33 @@ function setupTouchController(hostElement, state) {
     stickZone.addEventListener("pointerup", resetStick);
     stickZone.addEventListener("pointercancel", resetStick);
 
-    const buttonPointerDown = (event) => {
+    const buttonPointerDown = (event) =>
+    {
         const index = Number(event.currentTarget.dataset.button);
         if (!Number.isInteger(index)) return;
         event.preventDefault();
         event.currentTarget.setPointerCapture?.(event.pointerId);
-        buttons[index] = true;
-        event.currentTarget.classList.add("is-pressed");
+
+        const isTrigger = index === 6 || index === 7;
+        if (isTrigger && window.klooieMobileOptions?.touchTriggerToggle) {
+            buttons[index] = !buttons[index];
+        } else {
+            buttons[index] = true;
+        }
+
+        event.currentTarget.classList.toggle("is-pressed", buttons[index]);
         state.requestImmediateFrame?.();
     };
 
-    const buttonPointerUp = (event) => {
+    const buttonPointerUp = (event) =>
+    {
         const index = Number(event.currentTarget.dataset.button);
         if (!Number.isInteger(index)) return;
         event.preventDefault();
+
+        const isTrigger = index === 6 || index === 7;
+        if (isTrigger && window.klooieMobileOptions?.touchTriggerToggle) return;
+
         buttons[index] = false;
         event.currentTarget.classList.remove("is-pressed");
         state.requestImmediateFrame?.();
@@ -570,11 +642,17 @@ function setupTouchController(hostElement, state) {
         button.addEventListener("contextmenu", preventDefault);
     }
 
+    window.addEventListener("resize", updateMobileMode);
+    window.addEventListener("orientationchange", updateMobileMode);
+    window.addEventListener("klooie-mobile-options-changed", updateMobileMode);
+    updateMobileMode();
+
     state.touchController = {
         overlay,
         buttons,
         axes,
-        readGamepad() {
+        readGamepad()
+        {
             return {
                 id: "Klooie Touch Controller (Xbox)",
                 index: 1000,
@@ -584,7 +662,11 @@ function setupTouchController(hostElement, state) {
                 axes: axes.slice(0)
             };
         },
-        dispose() {
+        dispose()
+        {
+            window.removeEventListener("resize", updateMobileMode);
+            window.removeEventListener("orientationchange", updateMobileMode);
+            window.removeEventListener("klooie-mobile-options-changed", updateMobileMode);
             overlay.remove();
         }
     };
