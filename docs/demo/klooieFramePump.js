@@ -43,7 +43,7 @@ window.klooieFramePump = {
             touchController: undefined,
             zoomControl: undefined,
             mobileOptions: normalizeMobileOptions(mobileOptions),
-            zoomLevels: [0.8, 0.9, 1.0, 1.1],
+            zoomLevels: [0.6, 0.7, 0.8, 0.9, 1.0, 1.15, 1.3],
             zoom: 1,
             baseCellWidth: 8,
             baseCellHeight: 16,
@@ -516,7 +516,7 @@ function setupZoomControl(hostElement, state) {
     const setZoomIndex = index => {
         state.zoom = state.zoomLevels[clamp(index, 0, state.zoomLevels.length - 1)];
         try {
-            localStorage.setItem("klooie-mobile-zoom", String(state.zoom));
+            localStorage.setItem("klooie-mobile-zoom-v2", String(state.zoom));
         } catch {
         }
         updateCellMetrics(hostElement, state);
@@ -553,12 +553,24 @@ function getInitialZoom(state) {
     if (!state.mobileOptions.enableZoom || !shouldShowTouchController()) return 1;
 
     try {
-        const stored = Number(localStorage.getItem("klooie-mobile-zoom"));
+        const stored = Number(localStorage.getItem("klooie-mobile-zoom-v2"));
         if (Number.isFinite(stored) && state.zoomLevels.includes(stored)) return stored;
     } catch {
     }
 
-    return 0.9;
+    return getDefaultMobileZoom(state);
+}
+
+function getDefaultMobileZoom() {
+    const viewport = window.visualViewport;
+    const width = viewport?.width || window.innerWidth || document.documentElement.clientWidth;
+    const height = viewport?.height || window.innerHeight || document.documentElement.clientHeight;
+    const shortSide = Math.min(width, height);
+    const longSide = Math.max(width, height);
+
+    if (shortSide <= 360 || longSide <= 700) return 0.6;
+    if (shortSide <= 390 || longSide <= 780) return 0.7;
+    return 0.8;
 }
 
 function getZoomIndex(state) {

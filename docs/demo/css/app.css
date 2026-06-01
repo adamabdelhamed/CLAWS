@@ -85,13 +85,14 @@ body {
 
 .klooie-zoom-control {
     position: fixed;
-    right: max(10px, env(safe-area-inset-right));
+    left: 50%;
     top: max(10px, env(safe-area-inset-top));
+    transform: translateX(-50%);
     z-index: 30;
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 5px;
+    gap: 5px;
+    padding: 6px;
     border: 1px solid rgba(255, 255, 255, .22);
     border-radius: 999px;
     background: rgba(8, 13, 20, .66);
@@ -102,14 +103,14 @@ body {
 }
 
     .klooie-zoom-control button {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         padding: 0;
         border: 1px solid rgba(255, 255, 255, .30);
         border-radius: 50%;
         color: rgba(255, 255, 255, .9);
         background: rgba(255, 255, 255, .15);
-        font: 700 18px Consolas, "Cascadia Mono", "Courier New", monospace;
+        font: 700 20px Consolas, "Cascadia Mono", "Courier New", monospace;
         line-height: 1;
     }
 
@@ -118,9 +119,9 @@ body {
     }
 
     .klooie-zoom-value {
-        min-width: 44px;
+        min-width: 48px;
         color: rgba(255, 255, 255, .92);
-        font: 700 12px Consolas, "Cascadia Mono", "Courier New", monospace;
+        font: 700 13px Consolas, "Cascadia Mono", "Courier New", monospace;
         text-align: center;
     }
 
@@ -144,9 +145,8 @@ body {
 
 .klooie-mobile-actions {
     position: absolute;
-    left: 50%;
+    left: max(10px, env(safe-area-inset-left));
     top: max(10px, env(safe-area-inset-top));
-    transform: translateX(-50%);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -292,8 +292,9 @@ body {
 
 .klooie-touch-system {
     position: absolute;
-    left: max(22px, env(safe-area-inset-left));
-    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 78px);
+    left: 50%;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
     display: flex;
     gap: 12px;
     pointer-events: none;
