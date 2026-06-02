@@ -375,6 +375,7 @@ async function runFrame(dotNetRef, hostElement, canvas, state, timestamp) {
         const keys = state.pendingKeys.splice(0, state.pendingKeys.length);
         const gamepadSnapshotJson = readGamepadSnapshotJson(state);
         const terminalFrame = await dotNetRef.invokeMethodAsync("Tick", size.width, size.height, elapsed, keys, gamepadSnapshotJson);
+        applyBrowserControllerCommands(state, terminalFrame);
         state.renderer.render(canvas, terminalFrame, state);
         state.sizeDirty = false;
     } catch (error) {
@@ -867,13 +868,23 @@ function setupTouchController(hostElement, state)
             }
 
             return {
-                id: "Klooie Touch Controller (Xbox)",
+                id: "Mobile Touch Controller",
                 index: 1000,
                 connected: true,
                 mapping: "klooie-touch",
                 buttons: effectiveButtons,
                 axes: axes.slice(0)
             };
+        },
+        releaseButtons(indices)
+        {
+            for (const index of indices || []) {
+                if (!Number.isInteger(index) || index < 0 || index >= buttons.length) continue;
+                buttons[index] = false;
+                overlay.querySelector(`button[data-button="${index}"]`)?.classList.remove("is-pressed");
+            }
+
+            state.requestImmediateFrame?.();
         },
         dispose()
         {
@@ -1059,6 +1070,13 @@ function readGamepadSnapshotJson(state) {
     } catch (error) {
         console.debug("klooie gamepad snapshot skipped", error);
         return null;
+    }
+}
+
+function applyBrowserControllerCommands(state, frame) {
+    const releases = frame?.touchButtonReleases || frame?.TouchButtonReleases;
+    if (releases?.length > 0) {
+        state.touchController?.releaseButtons(releases);
     }
 }
 
