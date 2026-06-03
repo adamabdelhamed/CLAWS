@@ -1229,10 +1229,8 @@ function buildPresentationDraws(frame, state, pixelWidth, pixelHeight) {
     const fullSource = { left: 0, top: 0, width: frame.width, height: frame.height };
     const fullTarget = { left: 0, top: 0, width: pixelWidth, height: pixelHeight };
     const focus = updateFocusPresentation(frame, state, pixelWidth, pixelHeight, fullSource, fullTarget);
-    const draws = [{ source: fullSource, target: fullTarget }];
-    if (!rectsAlmostEqual(focus.source, fullSource) || !rectsAlmostEqual(focus.target, fullTarget)) {
-        draws.push({ source: focus.source, target: focus.target });
-    }
+    const viewTarget = mapSourceRectToTarget(fullSource, focus.source, focus.target);
+    const draws = [{ source: fullSource, target: viewTarget }];
     const scaledRegions = frame.presentation?.scaledRegions || frame.presentation?.ScaledRegions || [];
 
     for (const region of scaledRegions) {
@@ -1328,10 +1326,6 @@ function updateFocusPresentation(frame, state, pixelWidth, pixelHeight, fullSour
     }
 
     return { source: fullSource, target: fullTarget };
-}
-
-function rectsAlmostEqual(a, b) {
-    return Math.abs(a.left - b.left) < .01 && Math.abs(a.top - b.top) < .01 && Math.abs(a.width - b.width) < .01 && Math.abs(a.height - b.height) < .01;
 }
 
 function getActiveFocusRegion(presentation) {
