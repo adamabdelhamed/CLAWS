@@ -1229,7 +1229,10 @@ function buildPresentationDraws(frame, state, pixelWidth, pixelHeight) {
     const fullSource = { left: 0, top: 0, width: frame.width, height: frame.height };
     const fullTarget = { left: 0, top: 0, width: pixelWidth, height: pixelHeight };
     const focus = updateFocusPresentation(frame, state, pixelWidth, pixelHeight, fullSource, fullTarget);
-    const draws = [{ source: focus.source, target: focus.target }];
+    const draws = [{ source: fullSource, target: fullTarget }];
+    if (!rectsAlmostEqual(focus.source, fullSource) || !rectsAlmostEqual(focus.target, fullTarget)) {
+        draws.push({ source: focus.source, target: focus.target });
+    }
     const scaledRegions = frame.presentation?.scaledRegions || frame.presentation?.ScaledRegions || [];
 
     for (const region of scaledRegions) {
@@ -1279,19 +1282,24 @@ function mapSourceRectToTarget(source, viewSource, viewTarget) {
 function updateFocusPresentation(frame, state, pixelWidth, pixelHeight, fullSource, fullTarget) {
     const activeFocus = getActiveFocusRegion(frame.presentation);
     const now = performance.now();
+    const fullDraw = { source: fullSource, target: fullTarget };
 
     if (activeFocus) {
+        const targetDraw = computeFocusDraw(activeFocus, frame, state, pixelWidth, pixelHeight);
         if (!state.presentationFocus || state.presentationFocus.id !== activeFocus.id || state.presentationFocus.exiting) {
-            state.presentationFocus = { id: activeFocus.id, region: activeFocus, startedAt: now, exiting: false };
+            const fromDraw = state.presentationFocus?.currentDraw || fullDraw;
+            state.presentationFocus = { id: activeFocus.id, region: activeFocus, startedAt: now, exiting: false, fromDraw, toDraw: targetDraw };
         } else {
             state.presentationFocus.region = activeFocus;
+            state.presentationFocus.toDraw = targetDraw;
         }
 
         const duration = normalizePositiveNumber(activeFocus.animationMilliseconds ?? activeFocus.AnimationMilliseconds, 450);
         const progress = easeInOutCinematic(clamp((now - state.presentationFocus.startedAt) / duration, 0, 1));
         if (progress < 1) state.requestImmediateFrame?.();
-        const focusTarget = computeFocusDraw(activeFocus, frame, state, pixelWidth, pixelHeight);
-        return interpolateDraw(fullSource, fullTarget, focusTarget.source, focusTarget.target, progress);
+        const currentDraw = interpolateDraw(state.presentationFocus.fromDraw.source, state.presentationFocus.fromDraw.target, state.presentationFocus.toDraw.source, state.presentationFocus.toDraw.target, progress);
+        state.presentationFocus.currentDraw = currentDraw;
+        return currentDraw;
     }
 
     if (state.presentationFocus && !state.presentationFocus.exiting) {
@@ -1299,7 +1307,9 @@ function updateFocusPresentation(frame, state, pixelWidth, pixelHeight, fullSour
             id: state.presentationFocus.id,
             region: state.presentationFocus.region,
             startedAt: now,
-            exiting: true
+            exiting: true,
+            fromDraw: state.presentationFocus.currentDraw || state.presentationFocus.toDraw || fullDraw,
+            toDraw: fullDraw
         };
     }
 
@@ -1309,14 +1319,19 @@ function updateFocusPresentation(frame, state, pixelWidth, pixelHeight, fullSour
         const progress = easeInOutCinematic(clamp((now - state.presentationFocus.startedAt) / duration, 0, 1));
         if (progress < 1) {
             state.requestImmediateFrame?.();
-            const focusTarget = computeFocusDraw(region, frame, state, pixelWidth, pixelHeight);
-            return interpolateDraw(focusTarget.source, focusTarget.target, fullSource, fullTarget, progress);
+            const currentDraw = interpolateDraw(state.presentationFocus.fromDraw.source, state.presentationFocus.fromDraw.target, state.presentationFocus.toDraw.source, state.presentationFocus.toDraw.target, progress);
+            state.presentationFocus.currentDraw = currentDraw;
+            return currentDraw;
         }
 
         state.presentationFocus = undefined;
     }
 
     return { source: fullSource, target: fullTarget };
+}
+
+function rectsAlmostEqual(a, b) {
+    return Math.abs(a.left - b.left) < .01 && Math.abs(a.top - b.top) < .01 && Math.abs(a.width - b.width) < .01 && Math.abs(a.height - b.height) < .01;
 }
 
 function getActiveFocusRegion(presentation) {
