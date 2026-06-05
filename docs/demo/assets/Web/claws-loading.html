@@ -156,6 +156,56 @@
         await window.klooieLifecycle.requestFullscreenAndLandscape?.();
         window.klooieLifecycle.dismissLoading();
       });
+
+      window.klooieCustomOverlay = {
+        show: (host, command, dismiss) => {
+          const id = command?.id || command?.Id;
+          if (id !== "claws-demo-blocked") return false;
+
+          const title = command?.title || command?.Title || "Full Version";
+          const message = command?.message || command?.Message || "Buy on Steam to enable this feature";
+          host.replaceChildren();
+
+          const overlay = document.createElement("div");
+          overlay.id = "claws-demo-blocked-overlay";
+          overlay.style.cssText = "position:fixed;inset:0;width:100vw;height:100dvh;min-height:100vh;background:#000;color:white;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:Consolas,Menlo,Monaco,'Courier New',monospace;user-select:none;-webkit-user-select:none;touch-action:none";
+          overlay.innerHTML = `
+  <style>
+    #claws-demo-blocked-overlay,#claws-demo-blocked-overlay *{box-sizing:border-box}
+    #claws-demo-blocked-overlay .stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:18px;overflow:hidden;background:radial-gradient(circle at 35% 50%,rgba(0,90,255,.25),transparent 31%),radial-gradient(circle at 66% 50%,rgba(255,80,0,.27),transparent 32%),#000}
+    #claws-demo-blocked-overlay .energy{position:absolute;inset:-30%;background:linear-gradient(90deg,transparent,rgba(0,120,255,.32),transparent 48%,rgba(255,80,0,.36),transparent);filter:blur(18px);animation:claws-drift 5s ease-in-out infinite alternate}
+    #claws-demo-blocked-overlay .panel{position:relative;width:min(94vw,820px);min-height:min(70dvh,500px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;border:1px solid rgba(255,255,255,.16);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));box-shadow:0 0 56px rgba(0,110,255,.18),0 0 56px rgba(255,80,0,.15),inset 0 0 44px rgba(255,255,255,.035);overflow:hidden;text-align:center}
+    #claws-demo-blocked-overlay .panel:before{content:"";position:absolute;inset:-40px;background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:22px 22px;mask-image:radial-gradient(circle,black 22%,transparent 72%);animation:claws-grid 3s linear infinite}
+    #claws-demo-blocked-overlay .eyebrow{position:relative;font-size:clamp(11px,2.1vw,14px);letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+    #claws-demo-blocked-overlay .title{position:relative;font-size:clamp(28px,7vw,64px);font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#fff;text-shadow:0 0 18px rgba(0,110,255,.45),0 0 18px rgba(255,80,0,.42)}
+    #claws-demo-blocked-overlay .message{position:relative;max-width:620px;font-size:clamp(14px,2.6vw,20px);line-height:1.65;color:rgba(255,255,255,.8)}
+    #claws-demo-blocked-overlay .actions{position:relative;display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:18px}
+    #claws-demo-blocked-overlay .button{border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:14px 28px;font:800 15px Consolas,Menlo,monospace;letter-spacing:.13em;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,rgba(0,105,255,.55),rgba(255,92,0,.58));box-shadow:0 0 22px rgba(0,110,255,.24),0 0 26px rgba(255,80,0,.22);cursor:pointer;text-decoration:none;transition:opacity .2s,filter .2s,transform .2s}
+    #claws-demo-blocked-overlay .button.secondary{background:rgba(255,255,255,.08)}
+    #claws-demo-blocked-overlay .button:hover{transform:translateY(-1px)}
+    @media (max-width:520px){#claws-demo-blocked-overlay .actions{flex-direction:column;width:min(100%,320px)}#claws-demo-blocked-overlay .button{width:100%}}
+  </style>
+  <div class="stage">
+    <div class="energy"></div>
+    <div class="panel" role="dialog" aria-modal="true" aria-labelledby="claws-demo-blocked-title">
+      <div class="eyebrow">CLAWS Demo</div>
+      <div id="claws-demo-blocked-title" class="title"></div>
+      <div class="message"></div>
+      <div class="actions">
+        <a class="button" href="https://store.steampowered.com/app/4575980/CLAWS_Command_Line_Advanced_Warfare_System/" target="_blank" rel="noopener">View on Steam</a>
+        <button class="button secondary" type="button">Back to Demo</button>
+      </div>
+    </div>
+  </div>`;
+
+          overlay.querySelector(".title").textContent = title;
+          overlay.querySelector(".message").textContent = message;
+          overlay.querySelector("button").addEventListener("click", dismiss);
+          host.appendChild(overlay);
+          overlay.querySelector("button").focus({ preventScroll: true });
+          return true;
+        }
+      };
     })();
   </script>
 </div>
