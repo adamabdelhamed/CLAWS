@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CLAWS Loading</title>
+</head>
+<body style="margin:0;background:#000;overflow:hidden">
+<div id="claws-loader" style="position:fixed;inset:0;width:100vw;height:100dvh;min-height:100vh;background:#000;color:white;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:Consolas,Menlo,Monaco,'Courier New',monospace;user-select:none;-webkit-user-select:none;touch-action:none">
+  <style>
+    #claws-loader,#claws-loader *{box-sizing:border-box}
+    #claws-loader .stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:18px;overflow:hidden;background:radial-gradient(circle at 35% 50%,rgba(0,90,255,.25),transparent 31%),radial-gradient(circle at 66% 50%,rgba(255,80,0,.27),transparent 32%),#000}
+    #claws-loader .energy{position:absolute;inset:-30%;background:linear-gradient(90deg,transparent,rgba(0,120,255,.32),transparent 48%,rgba(255,80,0,.36),transparent);filter:blur(18px);animation:claws-drift 5s ease-in-out infinite alternate}
+    #claws-loader .panel{position:relative;width:min(96vw,1100px);min-height:min(78dvh,620px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;border:1px solid rgba(255,255,255,.16);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));box-shadow:0 0 56px rgba(0,110,255,.18),0 0 56px rgba(255,80,0,.15),inset 0 0 44px rgba(255,255,255,.035);overflow:hidden}
+    #claws-loader .panel:before{content:"";position:absolute;inset:-40px;background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:22px 22px;mask-image:radial-gradient(circle,black 22%,transparent 72%);animation:claws-grid 3s linear infinite}
+    #claws-loader pre{position:relative;margin:0;white-space:pre;font:800 clamp(5px,1.18vw,13px)/1 Consolas,Menlo,Monaco,'Courier New',monospace;letter-spacing:0;text-align:left;filter:drop-shadow(0 0 12px rgba(255,255,255,.18));flex:0 1 auto}
+    #claws-loader .message{position:relative;max-width:720px;max-height:8.5em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;text-align:center;font-size:clamp(13px,2.2vw,18px);line-height:1.7;color:rgba(255,255,255,.78);margin-top:8px;flex:0 1 auto}
+    #claws-loader .button{position:relative;margin-top:34px;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:14px 30px;font:800 15px Consolas,Menlo,monospace;letter-spacing:.13em;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,rgba(0,105,255,.55),rgba(255,92,0,.58));box-shadow:0 0 22px rgba(0,110,255,.24),0 0 26px rgba(255,80,0,.22);cursor:pointer;transition:opacity .2s,filter .2s,transform .2s;flex:0 0 auto}
+    #claws-loader .button:hover:not(:disabled){transform:translateY(-1px)}
+    #claws-loader .button:disabled{opacity:.34;filter:grayscale(.8);cursor:default;transform:scale(.98)}
+    @media (orientation:landscape){#claws-loader .message{max-height:5.1em;-webkit-line-clamp:3}}
+    @media (orientation:portrait){#claws-loader .panel{width:94vw;min-height:72dvh;padding:18px 10px}#claws-loader pre{font-size:clamp(3.4px,1.6vw,8px)}}
+    @keyframes claws-drift{from{transform:translateX(-5%) rotate(-2deg)}to{transform:translateX(5%) rotate(2deg)}}
+    @keyframes claws-grid{to{transform:translateY(22px)}}
+  </style>
+
+  <div class="stage">
+    <div class="energy"></div>
+    <div class="panel">
+      <pre id="claws-ascii" aria-label="CLAWS logo"></pre>
+      <div id="claws-loader-message" class="message">Welcome to the CLAWS demo. Massive battles, emergent combat, and thousands of fighters can clash simultaneously across dynamic battlefields. Experiment with different armies, weapons, and tactics as you watch the simulation unfold in real time.</div>
+      <button id="claws-loader-start" class="button" disabled>Loading</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const pattern = String.raw`
+                                        /
+                                       / 
+                                      /  \ 
+                                     /    \ 
+                                    /      \                          
+     __________ ______             /        \ ________           ________ ---------
+    /          \\    /            /    /\    \\      /           \      /           \ 
+    |    ------\|    |           /    /  \    \\      \    /\    /     |     ---- \ |
+    |    |      |    |          /    /    \    \\      \  /  \  /      |     |     \|
+    |    |      |    |         /    /______\    \\      \/    \/      / \      \ 
+    |    |      |    |        /                  \\                  /|\  \      \ 
+    |    |    /||    |_____/|/    /       /       \\                / | \___ \     |
+    |    ----- ||           |    /      /   \      \\      /\      /  |            /
+    \__________//___________| / /     /      \______\\____/  \____/   \___________/
+                         /  /  /    /
+                        / /   /   /       Command Line Advanced Warfare System
+                       //    /  /
+                      /     / /
+                           //
+                          /`;
+
+      const colorMap = String.raw`
+                                        A
+                                       A 
+                                      A  A
+                                     A    A
+                                    A      A                          
+     CCCCCCCCCC LLLLLL             A        A WWWWWWWW           WWWWWWWW SSSSSSSSS
+    C          CL    L            A    AA    AW      W           W      S           S
+    C    CCCCCCCL    L           A    A  A    AW      W    WW    W     S     SSSS S S
+    C    C      L    L          A    A    A    AW      W  W  W  W      S     S     SS
+    C    C      L    L         A    AAAAAAAA    AW      WW    WW      W S      S
+    C    C      L    L        A                  AW                  WSS  S      S
+    C    C    CCL    LLLLLLLLA    A       A       AW                W S SSSS S     S
+    C    CCCCC CL           L    A      A   A      AW      WW      W  S            S
+    CCCCCCCCCCCCLLLLLLLLLLLLL A A     A      AAAAAAAAWWWWWW  WWWWWW   SSSSSSSSSSSSS
+                         A  A  A    A
+                        A A   A   A       CCCCCCC LLLL AAAAAAAA WWWWWWW SSSSSS
+                       AA    A  A
+                      A     A A
+                           AA
+                          A`;
+
+      const colors = {
+        C: "rgb(45,255,42)",
+        L: "rgb(190,190,190)",
+        A: "rgb(255,230,60)",
+        W: "rgb(255,120,0)",
+        S: "rgb(255,40,24)"
+      };
+
+      const logo = document.getElementById("claws-ascii");
+      const message = document.getElementById("claws-loader-message");
+      const button = document.getElementById("claws-loader-start");
+      const loader = document.getElementById("claws-loader");
+      const pLines = pattern.replace(/\r/g, "").split("\n");
+      const cLines = colorMap.replace(/\r/g, "").split("\n");
+
+      function escapeHtml(ch) {
+        if (ch === "&") return "&amp;";
+        if (ch === "<") return "&lt;";
+        if (ch === ">") return "&gt;";
+        return ch;
+      }
+
+      function renderLogo(sweepX) {
+        let html = "";
+        for (let y = 0; y < pLines.length; y++) {
+          const line = pLines[y];
+          const map = cLines[y] || "";
+          for (let x = 0; x < line.length; x++) {
+            const ch = line[x] === " " ? "&nbsp;" : escapeHtml(line[x]);
+            const key = map[x] || " ";
+            const base = colors[key];
+            if (!base) {
+              html += ch;
+              continue;
+            }
+            const distance = Math.abs(x - sweepX);
+            const hot = Math.max(0, 1 - distance / 26);
+            const glow = 2 + hot * 18;
+            const brightness = 1 + hot * .9;
+            html += `<span style="color:${base};filter:brightness(${brightness});text-shadow:0 0 ${glow}px ${base}">${ch}</span>`;
+          }
+          html += "\n";
+        }
+        logo.innerHTML = html;
+      }
+
+      let start = performance.now();
+      function animate(now) {
+        const width = Math.max(...pLines.map(l => l.length));
+        const cycle = 5200;
+        const t = ((now - start) % cycle) / cycle;
+        const eased = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        renderLogo(-30 + eased * (width + 60));
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      window.klooieLoader = {
+        setMessage: text => {
+          message.textContent = text || "";
+        },
+        ready: text => {
+          if (text) message.textContent = text;
+          button.disabled = false;
+          button.textContent = "Play Demo";
+        },
+        hide: () => {
+          loader.remove();
+          document.getElementById("klooie-lifecycle-loading")?.remove();
+        }
+      };
+
+      button.addEventListener("click", async () => {
+        if (button.disabled) return;
+        await window.klooieLifecycle.requestFullscreenAndLandscape?.();
+        window.klooieLifecycle.dismissLoading();
+      });
+    })();
+  </script>
+</div>
+</body>
+</html>
