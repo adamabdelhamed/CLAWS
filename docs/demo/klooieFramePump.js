@@ -558,7 +558,7 @@ window.klooieFramePump = {
             knownGamepads: new Map(),
             touchController: undefined,
             zoomControl: undefined,
-            pendingTouchButtonHints: undefined,
+            pendingTouchButtonHints: [],
             firstVisibleFramePresented: false,
             stoppedScreenPresented: false,
             loadingDismissSubscription: undefined,
@@ -1136,7 +1136,7 @@ function normalizeFrameColorValue(color) {
 function ensureMobileControls(hostElement, state) {
     if (!shouldShowTouchController()) return;
     if (!state.touchController) setupTouchController(hostElement, state, true);
-    if (state.pendingTouchButtonHints?.length > 0) state.touchController?.applyButtonHints(state.pendingTouchButtonHints);
+    if (state.pendingTouchButtonHints.length > 0) state.touchController?.applyButtonHints(state.pendingTouchButtonHints);
     if (!state.zoomControl) setupZoomControl(hostElement, state);
 }
 
@@ -1639,16 +1639,12 @@ function isFullscreenActive() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement);
 }
 
-function isInstalledDisplayMode() {
-    return !!(
-        window.matchMedia?.("(display-mode: fullscreen)")?.matches ||
-        window.matchMedia?.("(display-mode: standalone)")?.matches ||
-        navigator.standalone === true
-    );
+function isFullscreenDisplayMode() {
+    return window.matchMedia?.("(display-mode: fullscreen)")?.matches === true;
 }
 
 function canRequestFullscreen() {
-    if (isInstalledDisplayMode()) return false;
+    if (isFullscreenDisplayMode()) return false;
 
     const element = document.documentElement;
     return !!(element.requestFullscreen || element.webkitRequestFullscreen);
@@ -1659,7 +1655,7 @@ function isIosBrowser() {
 }
 
 async function requestFullscreen(element) {
-    if (isInstalledDisplayMode()) return;
+    if (isFullscreenDisplayMode()) return;
 
     try {
         if (element.requestFullscreen) {
@@ -1793,9 +1789,26 @@ function applyBrowserControllerCommands(state, frame) {
 
     const hints = frame?.touchButtonHints || frame?.TouchButtonHints;
     if (hints?.length > 0) {
-        state.pendingTouchButtonHints = hints;
+        state.pendingTouchButtonHints = mergeTouchButtonHints(state.pendingTouchButtonHints, hints);
         state.touchController?.applyButtonHints(hints);
     }
+}
+
+function mergeTouchButtonHints(existing, incoming) {
+    if (incoming?.some?.(hint => Number(hint?.button ?? hint?.Button) < 0)) return incoming;
+
+    const byButton = new Map();
+    for (const hint of existing || []) {
+        const index = Number(hint?.button ?? hint?.Button);
+        if (Number.isInteger(index) && index >= 0) byButton.set(index, hint);
+    }
+
+    for (const hint of incoming || []) {
+        const index = Number(hint?.button ?? hint?.Button);
+        if (Number.isInteger(index) && index >= 0) byButton.set(index, hint);
+    }
+
+    return Array.from(byButton.values());
 }
 
 function applyTouchButtonHints(overlay, hints) {
