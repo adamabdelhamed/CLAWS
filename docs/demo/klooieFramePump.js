@@ -500,6 +500,7 @@ window.klooieFramePump = {
             knownGamepads: new Map(),
             touchController: undefined,
             zoomControl: undefined,
+            pendingTouchButtonHints: undefined,
             firstVisibleFramePresented: false,
             stoppedScreenPresented: false,
             loadingDismissSubscription: undefined,
@@ -1061,6 +1062,7 @@ function normalizeFrameColorValue(color) {
 function ensureMobileControls(hostElement, state) {
     if (!shouldShowTouchController()) return;
     if (!state.touchController) setupTouchController(hostElement, state, true);
+    if (state.pendingTouchButtonHints?.length > 0) state.touchController?.applyButtonHints(state.pendingTouchButtonHints);
     if (!state.zoomControl) setupZoomControl(hostElement, state);
 }
 
@@ -1547,13 +1549,20 @@ function isPortraitViewport() {
 }
 
 function isFullscreenActive() {
-    return !!(document.fullscreenElement || document.webkitFullscreenElement) ||
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+
+function isInstalledDisplayMode() {
+    return !!(
         window.matchMedia?.("(display-mode: fullscreen)")?.matches ||
         window.matchMedia?.("(display-mode: standalone)")?.matches ||
-        navigator.standalone === true;
+        navigator.standalone === true
+    );
 }
 
 function canRequestFullscreen() {
+    if (isInstalledDisplayMode()) return false;
+
     const element = document.documentElement;
     return !!(element.requestFullscreen || element.webkitRequestFullscreen);
 }
@@ -1563,9 +1572,11 @@ function isIosBrowser() {
 }
 
 async function requestFullscreen(element) {
+    if (isInstalledDisplayMode()) return;
+
     try {
         if (element.requestFullscreen) {
-            await element.requestFullscreen({ navigationUI: "hide" });
+            await element.requestFullscreen({ navigationUI: "auto" });
         } else if (element.webkitRequestFullscreen) {
             element.webkitRequestFullscreen();
         }
@@ -1677,6 +1688,7 @@ function applyBrowserControllerCommands(state, frame) {
 
     const hints = frame?.touchButtonHints || frame?.TouchButtonHints;
     if (hints?.length > 0) {
+        state.pendingTouchButtonHints = hints;
         state.touchController?.applyButtonHints(hints);
     }
 }
