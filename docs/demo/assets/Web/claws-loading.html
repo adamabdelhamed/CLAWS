@@ -28,7 +28,7 @@
     <div class="energy"></div>
     <div class="panel">
       <pre id="claws-ascii" aria-label="CLAWS logo"></pre>
-      <div id="claws-loader-message" class="message">Welcome to the CLAWS demo. Massive battles, emergent combat, and thousands of fighters can clash simultaneously across dynamic battlefields. Experiment with different armies, weapons, and tactics as you watch the simulation unfold in real time.</div>
+      <div id="claws-loader-message" class="message">This free demo will let you simulate a few default battles on 3 different battlefields. Custom battles, weapons, and items are available in the Steam version.</div>
       <button id="claws-loader-start" class="button" disabled>Loading</button>
     </div>
   </div>
@@ -193,7 +193,7 @@
       <div class="message"></div>
       <div class="actions">
         <a class="button" href="https://store.steampowered.com/app/4575980/CLAWS_Command_Line_Advanced_Warfare_System/" target="_blank" rel="noopener">View on Steam</a>
-        <button class="button secondary" type="button">Back to Demo</button>
+        <button class="button secondary" type="button" data-klooie-overlay-dismiss>Back to Demo</button>
       </div>
     </div>
   </div>`;
@@ -202,7 +202,6 @@
           overlay.querySelector(".message").textContent = message;
           overlay.querySelector("button").addEventListener("click", dismiss);
           host.appendChild(overlay);
-          overlay.querySelector("button").focus({ preventScroll: true });
           return true;
         }
       };
