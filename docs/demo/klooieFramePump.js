@@ -1737,6 +1737,7 @@ function setupTouchController(hostElement, state, fadeIn)
             <button type="button" class="klooie-mobile-install" hidden>Install</button>
             <button type="button" class="klooie-mobile-dismiss" aria-label="Dismiss">X</button>
         </div>
+        <div class="klooie-touch-encourage-drawer" hidden></div>
         <div class="klooie-touch-stick-zone">
             <div class="klooie-touch-stick-base" data-button="10">
                 <div class="klooie-touch-stick-label">LS</div>
@@ -2240,7 +2241,7 @@ function applyBrowserControllerCommands(state, frame) {
     const hints = frame?.touchButtonHints || frame?.TouchButtonHints;
     if (hints?.length > 0) {
         state.pendingTouchButtonHints = mergeTouchButtonHints(state.pendingTouchButtonHints, hints);
-        state.touchController?.applyButtonHints(hints);
+        state.touchController?.applyButtonHints(state.pendingTouchButtonHints);
     }
 }
 
@@ -2273,9 +2274,11 @@ function applyTouchButtonHints(overlay, hints) {
                 : element;
             setTouchButtonLabel(element, labelElement, getDefaultTouchButtonLabel(index));
             element.classList.remove("is-disabled");
+            element.classList.remove("is-encouraged");
             element.setAttribute("aria-disabled", "false");
         }
 
+        updateTouchEncourageDrawer(overlay, []);
         return;
     }
 
@@ -2285,6 +2288,7 @@ function applyTouchButtonHints(overlay, hints) {
 
         const label = String(hint?.label ?? hint?.Label ?? getDefaultTouchButtonLabel(index));
         const enabled = (hint?.enabled ?? hint?.Enabled) !== false;
+        const encouraged = (hint?.encourage ?? hint?.Encourage) === true;
         const element = overlay.querySelector(`[data-button="${index}"]`);
         if (!element) continue;
 
@@ -2293,8 +2297,26 @@ function applyTouchButtonHints(overlay, hints) {
             : element;
         setTouchButtonLabel(element, labelElement, label);
         element.classList.toggle("is-disabled", !enabled);
+        element.classList.toggle("is-encouraged", encouraged);
         element.setAttribute("aria-disabled", enabled ? "false" : "true");
     }
+
+    updateTouchEncourageDrawer(overlay, hints);
+}
+
+function updateTouchEncourageDrawer(overlay, hints) {
+    const drawer = overlay.querySelector(".klooie-touch-encourage-drawer");
+    if (!drawer) return;
+
+    let message = "";
+    for (const hint of hints || []) {
+        if ((hint?.encourage ?? hint?.Encourage) !== true) continue;
+        message = String(hint?.encourageMessage ?? hint?.EncourageMessage ?? "");
+        if (message.trim().length > 0) break;
+    }
+
+    drawer.textContent = message;
+    drawer.hidden = message.trim().length === 0;
 }
 
 function setTouchButtonLabel(element, labelElement, label) {
