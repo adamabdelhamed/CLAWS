@@ -690,6 +690,62 @@ window.klooieLifecycle = window.klooieLifecycle || (() => {
     };
 })();
 
+window.klooieStorage = window.klooieStorage || {};
+window.klooieStorage.clearGameStateAndReload = function () {
+    const clearStorage = storage => {
+        if (!storage) return;
+        for (let i = storage.length - 1; i >= 0; i--) {
+            const key = storage.key(i);
+            if (key && (key.startsWith("CLAWS:") || key.startsWith("klooie-"))) storage.removeItem(key);
+        }
+    };
+
+    const clearCookies = () => {
+        const expire = name => {
+            document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+            document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=" + location.pathname;
+        };
+
+        for (const cookie of document.cookie.split(";")) {
+            const name = cookie.split("=")[0]?.trim();
+            if (name) expire(name);
+        }
+    };
+
+    const clearAsyncState = async () => {
+        try {
+            if (window.caches?.keys) {
+                for (const key of await caches.keys()) await caches.delete(key);
+            }
+        } catch {
+        }
+
+        try {
+            if (navigator.serviceWorker?.getRegistrations) {
+                for (const registration of await navigator.serviceWorker.getRegistrations()) await registration.unregister();
+            }
+        } catch {
+        }
+    };
+
+    try {
+        clearStorage(localStorage);
+    } catch {
+    }
+
+    try {
+        clearStorage(sessionStorage);
+    } catch {
+    }
+
+    try {
+        clearCookies();
+    } catch {
+    }
+
+    clearAsyncState().finally(() => location.reload());
+};
+
 function createOverlayGamepadNavigator() {
     const state = {
         host: undefined,
