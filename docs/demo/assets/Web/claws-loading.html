@@ -1,222 +1,546 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>CLAWS Loading</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>CLAWS Loading</title>
 </head>
 <body style="margin:0;background:#000;overflow:hidden">
-<div id="claws-loader" style="position:fixed;inset:0;width:100vw;height:var(--claws-vh,100svh);min-height:0;background:#000;color:white;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:Consolas,Menlo,Monaco,'Courier New',monospace;user-select:none;-webkit-user-select:none;touch-action:none">
-  <style>
-    #claws-loader,#claws-loader *{box-sizing:border-box}
-    #claws-loader .stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:max(env(safe-area-inset-top),clamp(8px,2.4svh,18px)) max(env(safe-area-inset-right),clamp(8px,2.4svh,18px)) max(env(safe-area-inset-bottom),clamp(8px,2.4svh,18px)) max(env(safe-area-inset-left),clamp(8px,2.4svh,18px));overflow:hidden;background:radial-gradient(circle at 35% 50%,rgba(0,90,255,.25),transparent 31%),radial-gradient(circle at 66% 50%,rgba(255,80,0,.27),transparent 32%),#000}
-    #claws-loader .energy{position:absolute;inset:-30%;background:linear-gradient(90deg,transparent,rgba(0,120,255,.32),transparent 48%,rgba(255,80,0,.36),transparent);filter:blur(18px);animation:claws-drift 5s ease-in-out infinite alternate}
-    #claws-loader .panel{position:relative;width:min(96vw,1100px);height:min(calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px)),620px);max-height:calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px));display:grid;grid-template-rows:minmax(0,1fr) auto auto;justify-items:center;align-items:center;gap:clamp(8px,2svh,16px);padding:clamp(10px,2.4svh,22px);border:1px solid rgba(255,255,255,.16);border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));box-shadow:0 0 56px rgba(0,110,255,.18),0 0 56px rgba(255,80,0,.15),inset 0 0 44px rgba(255,255,255,.035);overflow:hidden}
-    #claws-loader .panel:before{content:"";position:absolute;inset:-40px;background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:22px 22px;mask-image:radial-gradient(circle,black 22%,transparent 72%);animation:claws-grid 3s linear infinite}
-    #claws-loader pre{position:relative;align-self:center;max-width:100%;max-height:100%;overflow:hidden;margin:0;white-space:pre;font:800 clamp(4px,1.08vw,12px)/1 Consolas,Menlo,Monaco,'Courier New',monospace;letter-spacing:0;text-align:left;filter:drop-shadow(0 0 12px rgba(255,255,255,.18))}
-    #claws-loader .message{position:relative;max-width:720px;max-height:5.2em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;text-align:center;font-size:clamp(12px,2.1vw,17px);line-height:1.55;color:rgba(255,255,255,.78)}
-    #claws-loader .button{position:relative;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:14px 30px;font:800 15px Consolas,Menlo,monospace;letter-spacing:.13em;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,rgba(0,105,255,.55),rgba(255,92,0,.58));box-shadow:0 0 22px rgba(0,110,255,.24),0 0 26px rgba(255,80,0,.22);cursor:pointer;transition:opacity .2s,filter .2s,transform .2s}
-    #claws-loader .button:hover:not(:disabled){transform:translateY(-1px)}
-    #claws-loader .button:disabled{opacity:.34;filter:grayscale(.8);cursor:default;transform:scale(.98)}
-    @media (orientation:landscape){#claws-loader .panel{width:min(96vw,1120px);height:min(calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px)),570px)}#claws-loader .message{max-height:4.8em;-webkit-line-clamp:3}}
-    @media (orientation:portrait){#claws-loader .panel{width:94vw;height:min(calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px)),720px);padding:14px 10px}#claws-loader pre{font-size:clamp(3px,1.45vw,7.5px)}#claws-loader .message{max-height:5em;-webkit-line-clamp:3;font-size:clamp(12px,3.2vw,15px);line-height:1.45}#claws-loader .button{padding:13px 24px;font-size:14px}}
-    @keyframes claws-drift{from{transform:translateX(-5%) rotate(-2deg)}to{transform:translateX(5%) rotate(2deg)}}
-    @keyframes claws-grid{to{transform:translateY(22px)}}
-  </style>
-
-  <div class="stage">
-    <div class="energy"></div>
-    <div class="panel">
-      <pre id="claws-ascii" aria-label="CLAWS logo"></pre>
-      <div id="claws-loader-message" class="message">This free demo will let you simulate a few default battles on 3 different battlefields. Custom battles, weapons, and items are available in the Steam version.</div>
-      <button id="claws-loader-start" class="button" disabled>Loading</button>
-    </div>
-  </div>
-
-  <script>
-    (() => {
-      function updateViewportHeight() {
-        document.documentElement.style.setProperty("--claws-vh", `${window.innerHeight}px`);
-      }
-
-      updateViewportHeight();
-      addEventListener("resize", updateViewportHeight, { passive: true });
-      addEventListener("orientationchange", updateViewportHeight, { passive: true });
-
-      const pattern = String.raw`
-                                        /
-                                       / 
-                                      /  \ 
-                                     /    \ 
-                                    /      \                          
-     __________ ______             /        \ ________           ________ ---------
-    /          \\    /            /    /\    \\      /           \      /           \ 
-    |    ------\|    |           /    /  \    \\      \    /\    /     |     ---- \ |
-    |    |      |    |          /    /    \    \\      \  /  \  /      |     |     \|
-    |    |      |    |         /    /______\    \\      \/    \/      / \      \ 
-    |    |      |    |        /                  \\                  /|\  \      \ 
-    |    |    /||    |_____/|/    /       /       \\                / | \___ \     |
-    |    ----- ||           |    /      /   \      \\      /\      /  |            /
-    \__________//___________| / /     /      \______\\____/  \____/   \___________/
-                         /  /  /    /
-                        / /   /   /       Command Line Advanced Warfare System
-                       //    /  /
-                      /     / /
-                           //
-                          /`;
-
-      const colorMap = String.raw`
-                                        A
-                                       A 
-                                      A  A
-                                     A    A
-                                    A      A                          
-     CCCCCCCCCC LLLLLL             A        A WWWWWWWW           WWWWWWWW SSSSSSSSS
-    C          CL    L            A    AA    AW      W           W      S           S
-    C    CCCCCCCL    L           A    A  A    AW      W    WW    W     S     SSSS S S
-    C    C      L    L          A    A    A    AW      W  W  W  W      S     S     SS
-    C    C      L    L         A    AAAAAAAA    AW      WW    WW      W S      S
-    C    C      L    L        A                  AW                  WSS  S      S
-    C    C    CCL    LLLLLLLLA    A       A       AW                W S SSSS S     S
-    C    CCCCC CL           L    A      A   A      AW      WW      W  S            S
-    CCCCCCCCCCCCLLLLLLLLLLLLL A A     A      AAAAAAAAWWWWWW  WWWWWW   SSSSSSSSSSSSS
-                         A  A  A    A
-                        A A   A   A       CCCCCCC LLLL AAAAAAAA WWWWWWW SSSSSS
-                       AA    A  A
-                      A     A A
-                           AA
-                          A`;
-
-      const colors = {
-        C: "rgb(45,255,42)",
-        L: "rgb(190,190,190)",
-        A: "rgb(255,230,60)",
-        W: "rgb(255,120,0)",
-        S: "rgb(255,40,24)"
-      };
-
-      const logo = document.getElementById("claws-ascii");
-      const message = document.getElementById("claws-loader-message");
-      const button = document.getElementById("claws-loader-start");
-      const loader = document.getElementById("claws-loader");
-      const pLines = pattern.replace(/\r/g, "").split("\n");
-      const cLines = colorMap.replace(/\r/g, "").split("\n");
-
-      function escapeHtml(ch) {
-        if (ch === "&") return "&amp;";
-        if (ch === "<") return "&lt;";
-        if (ch === ">") return "&gt;";
-        return ch;
-      }
-
-      function renderLogo(sweepX) {
-        let html = "";
-        for (let y = 0; y < pLines.length; y++) {
-          const line = pLines[y];
-          const map = cLines[y] || "";
-          for (let x = 0; x < line.length; x++) {
-            const ch = line[x] === " " ? "&nbsp;" : escapeHtml(line[x]);
-            const key = map[x] || " ";
-            const base = colors[key];
-            if (!base) {
-              html += ch;
-              continue;
+    <div id="claws-loader" style="position:fixed;inset:0;width:100vw;height:var(--claws-vh,100svh);min-height:0;background:#000;color:white;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:Consolas,Menlo,Monaco,'Courier New',monospace;user-select:none;-webkit-user-select:none;touch-action:none">
+        <style>
+            #claws-loader, #claws-loader * {
+                box-sizing: border-box
             }
-            const distance = Math.abs(x - sweepX);
-            const hot = Math.max(0, 1 - distance / 26);
-            const glow = 2 + hot * 18;
-            const brightness = 1 + hot * .9;
-            html += `<span style="color:${base};filter:brightness(${brightness});text-shadow:0 0 ${glow}px ${base}">${ch}</span>`;
-          }
-          html += "\n";
-        }
-        logo.innerHTML = html;
-      }
 
-      let start = performance.now();
-      function animate(now) {
-        const width = Math.max(...pLines.map(l => l.length));
-        const cycle = 5200;
-        const t = ((now - start) % cycle) / cycle;
-        const eased = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        renderLogo(-30 + eased * (width + 60));
-        requestAnimationFrame(animate);
-      }
-      requestAnimationFrame(animate);
+                #claws-loader .stage {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: max(env(safe-area-inset-top),clamp(8px,2.4svh,18px)) max(env(safe-area-inset-right),clamp(8px,2.4svh,18px)) max(env(safe-area-inset-bottom),clamp(8px,2.4svh,18px)) max(env(safe-area-inset-left),clamp(8px,2.4svh,18px));
+                    overflow: hidden;
+                    background: radial-gradient(circle at 35% 50%,rgba(0,90,255,.25),transparent 31%),radial-gradient(circle at 66% 50%,rgba(255,80,0,.27),transparent 32%),#000
+                }
 
-      window.klooieLoader = {
-        setMessage: text => {
-          message.textContent = text || "";
-        },
-        ready: () => {
-          button.disabled = false;
-          button.textContent = "Play Demo";
-        },
-        hide: () => {
-          loader.remove();
-          document.getElementById("klooie-lifecycle-loading")?.remove();
-        }
-      };
+                #claws-loader .energy {
+                    position: absolute;
+                    inset: -30%;
+                    background: linear-gradient(90deg,transparent,rgba(0,120,255,.32),transparent 48%,rgba(255,80,0,.36),transparent);
+                    filter: blur(18px);
+                    animation: claws-drift 5s ease-in-out infinite alternate
+                }
 
-      button.addEventListener("click", async () => {
-        if (button.disabled) return;
-        button.disabled = true;
-        button.textContent = "Starting";
-        const fullscreenAndLandscape = window.klooieLifecycle.requestFullscreenAndLandscape?.();
-        window.klooieLifecycle.dismissLoading();
-        await fullscreenAndLandscape?.catch?.(() => {});
-      });
+                #claws-loader .panel {
+                    position: relative;
+                    width: min(96vw,1100px);
+                    height: min(calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px)),620px);
+                    max-height: calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px));
+                    display: grid;
+                    grid-template-rows: minmax(0,1fr) auto auto;
+                    justify-items: center;
+                    align-items: center;
+                    gap: clamp(8px,2svh,16px);
+                    padding: clamp(10px,2.4svh,22px);
+                    border: 1px solid rgba(255,255,255,.16);
+                    border-radius: 8px;
+                    background: linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));
+                    box-shadow: 0 0 56px rgba(0,110,255,.18),0 0 56px rgba(255,80,0,.15),inset 0 0 44px rgba(255,255,255,.035);
+                    overflow: hidden
+                }
 
-      window.klooieCustomOverlay = {
-        show: (host, command, dismiss) => {
-          const id = command?.id || command?.Id;
-          if (id !== "claws-demo-blocked") return false;
+                    #claws-loader .panel:before {
+                        content: "";
+                        position: absolute;
+                        inset: -40px;
+                        background: linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+                        background-size: 22px 22px;
+                        mask-image: radial-gradient(circle,black 22%,transparent 72%);
+                        animation: claws-grid 3s linear infinite
+                    }
 
-          const title = command?.title || command?.Title || "Full Version";
-          const message = command?.message || command?.Message || "Buy on Steam to enable this feature";
-          host.replaceChildren();
+                #claws-loader pre {
+                    position: relative;
+                    align-self: center;
+                    max-width: 100%;
+                    max-height: 100%;
+                    overflow: hidden;
+                    margin: 0;
+                    white-space: pre;
+                    font: 800 clamp(4px,1.08vw,12px)/1 Consolas,Menlo,Monaco,'Courier New',monospace;
+                    letter-spacing: 0;
+                    text-align: left;
+                    filter: drop-shadow(0 0 12px rgba(255,255,255,.18))
+                }
 
-          const overlay = document.createElement("div");
-          overlay.id = "claws-demo-blocked-overlay";
-          overlay.style.cssText = "position:fixed;inset:0;width:100vw;height:100dvh;min-height:100vh;background:#000;color:white;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:Consolas,Menlo,Monaco,'Courier New',monospace;user-select:none;-webkit-user-select:none;touch-action:none";
-          overlay.innerHTML = `
-  <style>
-    #claws-demo-blocked-overlay,#claws-demo-blocked-overlay *{box-sizing:border-box}
-    #claws-demo-blocked-overlay .stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:18px;overflow:hidden;background:radial-gradient(circle at 35% 50%,rgba(0,90,255,.25),transparent 31%),radial-gradient(circle at 66% 50%,rgba(255,80,0,.27),transparent 32%),#000}
-    #claws-demo-blocked-overlay .energy{position:absolute;inset:-30%;background:linear-gradient(90deg,transparent,rgba(0,120,255,.32),transparent 48%,rgba(255,80,0,.36),transparent);filter:blur(18px);animation:claws-drift 5s ease-in-out infinite alternate}
-    #claws-demo-blocked-overlay .panel{position:relative;width:min(94vw,820px);min-height:min(70dvh,500px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;border:1px solid rgba(255,255,255,.16);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));box-shadow:0 0 56px rgba(0,110,255,.18),0 0 56px rgba(255,80,0,.15),inset 0 0 44px rgba(255,255,255,.035);overflow:hidden;text-align:center}
-    #claws-demo-blocked-overlay .panel:before{content:"";position:absolute;inset:-40px;background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:22px 22px;mask-image:radial-gradient(circle,black 22%,transparent 72%);animation:claws-grid 3s linear infinite}
-    #claws-demo-blocked-overlay .eyebrow{position:relative;font-size:clamp(11px,2.1vw,14px);letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.62)}
-    #claws-demo-blocked-overlay .title{position:relative;font-size:clamp(28px,7vw,64px);font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#fff;text-shadow:0 0 18px rgba(0,110,255,.45),0 0 18px rgba(255,80,0,.42)}
-    #claws-demo-blocked-overlay .message{position:relative;max-width:620px;font-size:clamp(14px,2.6vw,20px);line-height:1.65;color:rgba(255,255,255,.8)}
-    #claws-demo-blocked-overlay .actions{position:relative;display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:18px}
-    #claws-demo-blocked-overlay .button{border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:14px 28px;font:800 15px Consolas,Menlo,monospace;letter-spacing:.13em;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,rgba(0,105,255,.55),rgba(255,92,0,.58));box-shadow:0 0 22px rgba(0,110,255,.24),0 0 26px rgba(255,80,0,.22);cursor:pointer;text-decoration:none;transition:opacity .2s,filter .2s,transform .2s}
-    #claws-demo-blocked-overlay .button.secondary{background:rgba(255,255,255,.08)}
-    #claws-demo-blocked-overlay .button:hover{transform:translateY(-1px)}
-    @media (max-width:520px){#claws-demo-blocked-overlay .actions{flex-direction:column;width:min(100%,320px)}#claws-demo-blocked-overlay .button{width:100%}}
-  </style>
-  <div class="stage">
-    <div class="energy"></div>
-    <div class="panel" role="dialog" aria-modal="true" aria-labelledby="claws-demo-blocked-title">
-      <div class="eyebrow">CLAWS Demo</div>
-      <div id="claws-demo-blocked-title" class="title"></div>
-      <div class="message"></div>
-      <div class="actions">
-        <a class="button" href="https://store.steampowered.com/app/4575980/CLAWS_Command_Line_Advanced_Warfare_System/" target="_blank" rel="noopener">View on Steam</a>
-        <button class="button secondary" type="button" data-klooie-overlay-dismiss>Back to Demo</button>
-      </div>
+                #claws-loader .message {
+                    position: relative;
+                    max-width: 720px;
+                    height: 5.2em;
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    text-align: center;
+                    font-size: clamp(12px,2.1vw,17px);
+                    line-height: 1.55;
+                    color: rgba(255,255,255,.78);
+                    transition: opacity .28s ease,transform .28s ease,filter .28s ease
+                }
+
+                    #claws-loader .message.changing {
+                        opacity: 0;
+                        transform: translateY(10px) scale(.985);
+                        filter: blur(2px)
+                    }
+
+                #claws-loader .button {
+                    position: relative;
+                    min-width: 154px;
+                    border: 1px solid rgba(255,255,255,.3);
+                    border-radius: 999px;
+                    padding: 14px 30px;
+                    font: 800 15px Consolas,Menlo,monospace;
+                    letter-spacing: .13em;
+                    text-transform: uppercase;
+                    color: #fff;
+                    background: linear-gradient(90deg,rgba(0,105,255,.55),rgba(255,92,0,.58));
+                    box-shadow: 0 0 22px rgba(0,110,255,.24),0 0 26px rgba(255,80,0,.22);
+                    cursor: pointer;
+                    transition: opacity .2s,filter .2s,transform .2s,box-shadow .2s;
+                    overflow: hidden
+                }
+
+                    #claws-loader .button:before {
+                        content: "";
+                        position: absolute;
+                        inset: -40% -80%;
+                        background: linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+                        transform: translateX(-80%);
+                        opacity: 0;
+                        pointer-events: none
+                    }
+
+                    #claws-loader .button:hover:not(:disabled) {
+                        transform: translateY(-1px)
+                    }
+
+                    #claws-loader .button:disabled {
+                        opacity: .52;
+                        filter: grayscale(.35);
+                        cursor: default;
+                        transform: scale(.98)
+                    }
+
+                    #claws-loader .button.loading {
+                        animation: claws-loading-pulse 1.2s ease-in-out infinite
+                    }
+
+                        #claws-loader .button.loading:before {
+                            opacity: 1;
+                            animation: claws-button-sheen 1.25s ease-in-out infinite
+                        }
+
+                #claws-loader .steam-static-link {
+                    position: absolute;
+                    bottom: max(env(safe-area-inset-bottom), clamp(12px, 3svh, 24px));
+                    right: max(env(safe-area-inset-right), clamp(12px, 3svh, 24px));
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: clamp(12px, 1.5vw, 14px);
+                    font-weight: 800;
+                    letter-spacing: .05em;
+                    color: rgba(255,255,255,.5);
+                    text-decoration: none;
+                    text-transform: uppercase;
+                    transition: color .2s,text-shadow .2s,transform .2s;
+                    z-index: 10;
+                }
+
+                    #claws-loader .steam-static-link:hover {
+                        color: #fff;
+                        text-shadow: 0 0 12px rgba(255,255,255,.8);
+                        transform: translateY(-1px);
+                    }
+
+                    #claws-loader .steam-static-link svg {
+                        width: 20px;
+                        height: 20px;
+                        fill: currentColor;
+                    }
+
+            @media (orientation:landscape) {
+                #claws-loader .panel {
+                    width: min(96vw,1120px);
+                    height: min(calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px)),570px)
+                }
+
+                #claws-loader .message {
+                    height: 4.8em;
+                    -webkit-line-clamp: 3
+                }
+            }
+
+            @media (orientation:portrait) {
+                #claws-loader .panel {
+                    width: 94vw;
+                    height: min(calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px)),720px);
+                    padding: 14px 10px
+                }
+
+                #claws-loader pre {
+                    font-size: clamp(3px,1.45vw,7.5px)
+                }
+
+                #claws-loader .message {
+                    height: 5em;
+                    -webkit-line-clamp: 3;
+                    font-size: clamp(12px,3.2vw,15px);
+                    line-height: 1.45
+                }
+
+                #claws-loader .button {
+                    padding: 13px 24px;
+                    font-size: 14px
+                }
+            }
+
+            @keyframes claws-drift {
+                from {
+                    transform: translateX(-5%) rotate(-2deg)
+                }
+
+                to {
+                    transform: translateX(5%) rotate(2deg)
+                }
+            }
+
+            @keyframes claws-grid {
+                to {
+                    transform: translateY(22px)
+                }
+            }
+
+            @keyframes claws-loading-pulse {
+                0%,100% {
+                    box-shadow: 0 0 22px rgba(0,110,255,.24),0 0 26px rgba(255,80,0,.22)
+                }
+
+                50% {
+                    box-shadow: 0 0 34px rgba(0,110,255,.42),0 0 38px rgba(255,80,0,.34)
+                }
+            }
+
+            @keyframes claws-button-sheen {
+                from {
+                    transform: translateX(-80%)
+                }
+
+                to {
+                    transform: translateX(80%)
+                }
+            }
+        </style>
+
+        <div class="stage">
+            <div class="energy"></div>
+            <div class="panel">
+                <pre id="claws-ascii" aria-label="CLAWS logo"></pre>
+                <div id="claws-loader-message" class="message"></div>
+                <button id="claws-loader-start" class="button">Next</button>
+            </div>
+            <a href="https://store.steampowered.com/app/4575980" target="_blank" rel="noopener" class="steam-static-link" aria-label="View on Steam">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.979 0C5.353 0 0 5.373 0 12c0 4.256 2.215 8.016 5.568 10.152l3.411-4.887c-.152-.423-.238-.881-.238-1.353 0-2.222 1.802-4.023 4.024-4.023.468 0 .923.084 1.341.233l3.633-5.226c.01-.073.016-.148.016-.225 0-1.89-1.533-3.424-3.424-3.424-1.89 0-3.424 1.534-3.424 3.424 0 .307.042.604.118.887l-2.825 4.053a4.032 4.032 0 0 0-1.52-.303c-2.222 0-4.024 1.801-4.024 4.023 0 2.223 1.802 4.024 4.024 4.024 2.223 0 4.024-1.801 4.024-4.024 0-.317-.038-.624-.108-.918l3.419-4.896c.427.151.889.237 1.365.237 2.222 0 4.023-1.801 4.023-4.023 0-2.223-1.801-4.024-4.023-4.024-2.223 0-4.024 1.801-4.024 4.024 0 .078.006.155.016.231l-3.631 5.223a4.015 4.015 0 0 0-1.343-.235c-2.222 0-4.023 1.801-4.023 4.023 0 .47.085.928.238 1.351L2.096 22.06C4.857 23.3 7.859 24 11.979 24 18.605 24 24 18.627 24 12c0-6.627-5.395-12-12.021-12zM15.525 8.794c-1.312 0-2.376 1.064-2.376 2.376 0 1.312 1.064 2.376 2.376 2.376 1.312 0 2.376-1.064 2.376-2.376 0-1.312-1.064-2.376-2.376-2.376zm-7.618 4.023c-.899 0-1.628.729-1.628 1.628 0 .899.729 1.628 1.628 1.628.899 0 1.628-.729 1.628-1.628 0-.899-.729-1.628-1.628-1.628z"/></svg>
+                Wishlist on Steam
+            </a>
+        </div>
+
+        <script>
+            (() =>
+            {
+                function updateViewportHeight()
+                {
+                    document.documentElement.style.setProperty("--claws-vh", `${window.innerHeight}px`);
+                }
+
+                updateViewportHeight();
+                addEventListener("resize", updateViewportHeight, { passive: true });
+                addEventListener("orientationchange", updateViewportHeight, { passive: true });
+
+                const pattern = String.raw`
+                                                /
+                                               /
+                                              /  \
+                                             /    \
+                                            /      \
+             __________ ______             /        \ ________           ________ ---------
+            /          \\    /            /    /\    \\      /           \      /           \
+            |    ------\|    |           /    /  \    \\      \    /\    /     |     ---- \ |
+            |    |      |    |          /    /    \    \\      \  /  \  /      |     |     \|
+            |    |      |    |         /    /______\    \\      \/    \/      / \      \
+            |    |      |    |        /                  \\                  /|\  \      \
+            |    |    /||    |_____/|/    /       /       \\                / | \___ \     |
+            |    ----- ||           |    /      /   \      \\      /\      /  |            /
+            \__________//___________| / /     /      \______\\____/  \____/   \___________/
+                                 /  /  /    /
+                                / /   /   /       Command Line Advanced Warfare System
+                               //    /  /
+                              /     / /
+                                   //
+                                  /`;
+
+                const colorMap = String.raw`
+                                                A
+                                               A
+                                              A  A
+                                             A    A
+                                            A      A
+             CCCCCCCCCC LLLLLL             A        A WWWWWWWW           WWWWWWWW SSSSSSSSS
+            C          CL    L            A    AA    AW      W           W      S           S
+            C    CCCCCCCL    L           A    A  A    AW      W    WW    W     S     SSSS S S
+            C    C      L    L          A    A    A    AW      W  W  W  W      S     S     SS
+            C    C      L    L         A    AAAAAAAA    AW      WW    WW      W S      S
+            C    C      L    L        A                  AW                  WSS  S      S
+            C    C    CCL    LLLLLLLLA    A       A       AW                W S SSSS S     S
+            C    CCCCC CL           L    A      A   A      AW      WW      W  S            S
+            CCCCCCCCCCCCLLLLLLLLLLLLL A A     A      AAAAAAAAWWWWWW  WWWWWW   SSSSSSSSSSSSS
+                                 A  A  A    A
+                                A A   A   A       CCCCCCC LLLL AAAAAAAA WWWWWWW SSSSSS
+                               AA    A  A
+                              A     A A
+                                   AA
+                                  A`;
+
+                const colors = {
+                    C: "rgb(45,255,42)",
+                    L: "rgb(190,190,190)",
+                    A: "rgb(255,230,60)",
+                    W: "rgb(255,120,0)",
+                    S: "rgb(255,40,24)"
+                };
+
+                const logo = document.getElementById("claws-ascii");
+                const message = document.getElementById("claws-loader-message");
+                const button = document.getElementById("claws-loader-start");
+                const loader = document.getElementById("claws-loader");
+                const pLines = pattern.replace(/\r/g, "").split("\n");
+                const cLines = colorMap.replace(/\r/g, "").split("\n");
+                const tutorialMessages = [
+                    "CLAWS is a sandbox. There is no right way to play. Watch battles unfold, intervene when you want, and experiment with different outcomes.",
+                    "In this demo you can access default battles across three battlefields. Some weapons can be used during battle to influence the action.",
+                    "The full Steam version includes custom battles and a much larger collection of maps, units, weapons, items, and special characters."
+                ];
+
+                let tutorialStep = 0;
+                let loadingComplete = false;
+                let loadingStep = 0;
+                let loadingDotTimer = null;
+                const loadingFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+                function escapeHtml(ch)
+                {
+                    if (ch === "&") return "&amp;";
+                    if (ch === "<") return "&lt;";
+                    if (ch === ">") return "&gt;";
+                    return ch;
+                }
+
+                function renderLogo(sweepX)
+                {
+                    let html = "";
+                    for (let y = 0; y < pLines.length; y++) {
+                        const line = pLines[y];
+                        const map = cLines[y] || "";
+                        for (let x = 0; x < line.length; x++) {
+                            const ch = line[x] === " " ? "&nbsp;" : escapeHtml(line[x]);
+                            const key = map[x] || " ";
+                            const base = colors[key];
+                            if (!base) {
+                                html += ch;
+                                continue;
+                            }
+                            const distance = Math.abs(x - sweepX);
+                            const hot = Math.max(0, 1 - distance / 26);
+                            const glow = 2 + hot * 18;
+                            const brightness = 1 + hot * .9;
+                            html += `<span style="color:${base};filter:brightness(${brightness});text-shadow:0 0 ${glow}px ${base}">${ch}</span>`;
+                        }
+                        html += "\n";
+                    }
+                    logo.innerHTML = html;
+                }
+
+                function stopLoadingDots()
+                {
+                    if (!loadingDotTimer) return;
+                    clearInterval(loadingDotTimer);
+                    loadingDotTimer = null;
+                }
+
+                function startLoadingDots()
+                {
+                    if (loadingDotTimer) return;
+                    loadingDotTimer = setInterval(() =>
+                    {
+                        loadingStep = (loadingStep + 1) % loadingFrames.length;
+                        button.textContent = `INITIALIZING ${loadingFrames[loadingStep]}`;
+                    }, 80);
+                }
+
+                function setButtonText(text)
+                {
+                    stopLoadingDots();
+                    button.textContent = text;
+                }
+
+                function updateButtonState()
+                {
+                    if (tutorialStep < 2) {
+                        button.disabled = false;
+                        button.classList.remove("loading");
+                        setButtonText("Next");
+                        return;
+                    }
+
+                    if (loadingComplete) {
+                        button.disabled = false;
+                        button.classList.remove("loading");
+                        setButtonText("Play Demo");
+                        return;
+                    }
+
+                    button.disabled = true;
+                    button.classList.add("loading");
+                    startLoadingDots();
+                }
+
+                function formatMessageHtml(text)
+                {
+                    if (!text) return "";
+                    return text.replace(/Steam/g, `<a href="https://store.steampowered.com/app/4575980" target="_blank" rel="noopener" style="color:#0bf;text-decoration:none;font-weight:bold;text-shadow:0 0 12px rgba(0,187,255,0.4)">Steam</a>`);
+                }
+
+                function setMessage(text, animate)
+                {
+                    if (!animate) {
+                        message.innerHTML = formatMessageHtml(text);
+                        return;
+                    }
+
+                    message.classList.add("changing");
+                    setTimeout(() =>
+                    {
+                        message.innerHTML = formatMessageHtml(text);
+                        message.classList.remove("changing");
+                    }, 170);
+                }
+
+                setMessage(tutorialMessages[0], false);
+
+                let start = performance.now();
+                function animate(now)
+                {
+                    const width = Math.max(...pLines.map(l => l.length));
+                    const cycle = 5200;
+                    const t = ((now - start) % cycle) / cycle;
+                    const eased = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+                    renderLogo(-30 + eased * (width + 60));
+                    requestAnimationFrame(animate);
+                }
+                requestAnimationFrame(animate);
+
+                updateButtonState();
+
+                window.klooieLoader = {
+                    setMessage: text =>
+                    {
+                        setMessage(text, true);
+                    },
+                    ready: () =>
+                    {
+                        loadingComplete = true;
+                        updateButtonState();
+                    },
+                    hide: () =>
+                    {
+                        stopLoadingDots();
+                        loader.remove();
+                        document.getElementById("klooie-lifecycle-loading")?.remove();
+                    }
+                };
+
+                button.addEventListener("click", async () =>
+                {
+                    if (button.disabled) return;
+
+                    if (tutorialStep < 2) {
+                        tutorialStep++;
+                        setMessage(tutorialMessages[tutorialStep], true);
+                        updateButtonState();
+                        return;
+                    }
+
+                    button.disabled = true;
+                    button.classList.remove("loading");
+                    setButtonText("Starting");
+                    const fullscreenAndLandscape = window.klooieLifecycle.requestFullscreenAndLandscape?.();
+                    window.klooieLifecycle.dismissLoading();
+                    await fullscreenAndLandscape?.catch?.(() => { });
+                });
+
+                window.klooieCustomOverlay = {
+                    show: (host, command, dismiss) =>
+                    {
+                        const id = command?.id || command?.Id;
+                        if (id !== "claws-demo-blocked") return false;
+
+                        const title = command?.title || command?.Title || "Full Version";
+                        const message = command?.message || command?.Message || "Buy on Steam to enable this feature";
+                        host.replaceChildren();
+
+                        const overlay = document.createElement("div");
+                        overlay.id = "claws-demo-blocked-overlay";
+                        overlay.style.cssText = "position:fixed;inset:0;width:100vw;height:100dvh;min-height:100vh;background:#000;color:white;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:Consolas,Menlo,Monaco,'Courier New',monospace;user-select:none;-webkit-user-select:none;touch-action:none";
+                        overlay.innerHTML = `
+          <style>
+            #claws-demo-blocked-overlay,#claws-demo-blocked-overlay *{box-sizing:border-box}
+            #claws-demo-blocked-overlay .stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:18px;overflow:hidden;background:radial-gradient(circle at 35% 50%,rgba(0,90,255,.25),transparent 31%),radial-gradient(circle at 66% 50%,rgba(255,80,0,.27),transparent 32%),#000}
+            #claws-demo-blocked-overlay .energy{position:absolute;inset:-30%;background:linear-gradient(90deg,transparent,rgba(0,120,255,.32),transparent 48%,rgba(255,80,0,.36),transparent);filter:blur(18px);animation:claws-drift 5s ease-in-out infinite alternate}
+            #claws-demo-blocked-overlay .panel{position:relative;width:min(94vw,820px);min-height:min(70dvh,500px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;border:1px solid rgba(255,255,255,.16);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.012));box-shadow:0 0 56px rgba(0,110,255,.18),0 0 56px rgba(255,80,0,.15),inset 0 0 44px rgba(255,255,255,.035);overflow:hidden;text-align:center}
+            #claws-demo-blocked-overlay .panel:before{content:"";position:absolute;inset:-40px;background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:22px 22px;mask-image:radial-gradient(circle,black 22%,transparent 72%);animation:claws-grid 3s linear infinite}
+            #claws-demo-blocked-overlay .eyebrow{position:relative;font-size:clamp(11px,2.1vw,14px);letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+            #claws-demo-blocked-overlay .title{position:relative;font-size:clamp(28px,7vw,64px);font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#fff;text-shadow:0 0 18px rgba(0,110,255,.45),0 0 18px rgba(255,80,0,.42)}
+            #claws-demo-blocked-overlay .message{position:relative;max-width:620px;font-size:clamp(14px,2.6vw,20px);line-height:1.65;color:rgba(255,255,255,.8)}
+            #claws-demo-blocked-overlay .actions{position:relative;display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:18px}
+            #claws-demo-blocked-overlay .button{border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:14px 28px;font:800 15px Consolas,Menlo,monospace;letter-spacing:.13em;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,rgba(0,105,255,.55),rgba(255,92,0,.58));box-shadow:0 0 22px rgba(0,110,255,.24),0 0 26px rgba(255,80,0,.22);cursor:pointer;text-decoration:none;transition:opacity .2s,filter .2s,transform .2s}
+            #claws-demo-blocked-overlay .button.secondary{background:rgba(255,255,255,.08)}
+            #claws-demo-blocked-overlay .button:hover{transform:translateY(-1px)}
+            @media (max-width:520px){#claws-demo-blocked-overlay .actions{flex-direction:column;width:min(100%,320px)}#claws-demo-blocked-overlay .button{width:100%}}
+          </style>
+          <div class="stage">
+            <div class="energy"></div>
+            <div class="panel" role="dialog" aria-modal="true" aria-labelledby="claws-demo-blocked-title">
+              <div class="eyebrow">CLAWS Demo</div>
+              <div id="claws-demo-blocked-title" class="title"></div>
+              <div class="message"></div>
+              <div class="actions">
+                <a class="button" href="https://store.steampowered.com/app/4575980/CLAWS_Command_Line_Advanced_Warfare_System/" target="_blank" rel="noopener">View on Steam</a>
+                <button class="button secondary" type="button" data-klooie-overlay-dismiss>Back to Demo</button>
+              </div>
+            </div>
+          </div>`;
+
+                        overlay.querySelector(".title").textContent = title;
+                        overlay.querySelector(".message").textContent = message;
+                        overlay.querySelector("button").addEventListener("click", dismiss);
+                        host.appendChild(overlay);
+                        return true;
+                    }
+                };
+            })();
+        </script>
     </div>
-  </div>`;
-
-          overlay.querySelector(".title").textContent = title;
-          overlay.querySelector(".message").textContent = message;
-          overlay.querySelector("button").addEventListener("click", dismiss);
-          host.appendChild(overlay);
-          return true;
-        }
-      };
-    })();
-  </script>
-</div>
 </body>
 </html>
