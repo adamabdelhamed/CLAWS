@@ -187,7 +187,10 @@
                 #claws-loader .panel {
                     width: 94vw;
                     height: min(calc(var(--claws-vh,100svh) - 2 * clamp(8px,2.4svh,18px)),720px);
-                    padding: 14px 10px
+                    padding: 14px 10px;
+                    grid-template-rows: auto auto auto;
+                    align-content: center;
+                    gap: clamp(14px,3svh,24px);
                 }
 
                 #claws-loader pre {
@@ -195,8 +198,11 @@
                 }
 
                 #claws-loader .message {
-                    height: 5em;
-                    -webkit-line-clamp: 3;
+                    height: auto;
+                    max-width: min(82vw,720px);
+                    overflow: visible;
+                    display: block;
+                    -webkit-line-clamp: unset;
                     font-size: clamp(12px,3.2vw,15px);
                     line-height: 1.45
                 }
