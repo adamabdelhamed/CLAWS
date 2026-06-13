@@ -125,6 +125,42 @@
             color: var(--text);
         }
 
+        .header-links .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+            transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
+        }
+
+        .header-links .nav-btn-demo {
+            background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+            color: #05070d;
+        }
+
+        .header-links .nav-btn-demo:hover,
+        .header-links .nav-btn-demo:focus-visible {
+            transform: translateY(-1px);
+            color: #05070d;
+        }
+
+        .header-links .nav-btn-steam {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.14);
+            color: var(--text);
+        }
+
+        .header-links .nav-btn-steam:hover,
+        .header-links .nav-btn-steam:focus-visible {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: var(--text);
+        }
+
         .hero {
             position: relative;
             overflow: hidden;
@@ -159,7 +195,7 @@
             min-height: min(92vh, 920px);
             display: grid;
             align-items: center;
-            padding: 4rem 0 6rem;
+            padding: 2rem 0 6rem;
         }
 
         .hero-copy {
@@ -578,11 +614,10 @@
                 </span>
             </a>
             <nav class="header-links" aria-label="Primary">
-                <a href="demo/">Play Demo</a>
+                <a class="nav-btn nav-btn-demo" href="demo/">Play Demo</a>
+                <a class="nav-btn nav-btn-steam" href="https://store.steampowered.com/app/4575980" target="_blank" rel="noreferrer">View on Steam</a>
                 <a href="#trailer">Trailer</a>
                 <a href="#features">Features</a>
-                <a href="#battlefield">Battlefield</a>
-                <a href="#terminal">Terminal</a>
                 <a href="Privacy.html">Privacy</a>
             </nav>
         </div>
@@ -592,7 +627,6 @@
         <section class="hero" aria-labelledby="hero-title">
             <div class="hero-inner">
                 <div class="hero-copy">
-                    <p class="eyebrow">Real-time command. Front-line control. Terminal-rendered warfare.</p>
                     <h1 id="hero-title" class="sr-only">CLAWS</h1>
                     <img class="hero-logo" src="content/Capsule-1280x720.png" alt="" aria-hidden="true">
                     <p>CLAWS is a real-time battle simulator that puts you in charge of large-scale combat. Direct units from above, jump into a fighter on the front lines, and drive every turning point yourself.</p>
@@ -607,19 +641,19 @@
                         <a href="https://x.com/ClawsGame" target="_blank" rel="noreferrer">X</a>
                     </div>
                     <div class="hero-stats" aria-label="Highlights">
-                        <div class="stat">
-                            <strong>Command or fight</strong>
-                            <span>Play from a tactical overview or take direct control in the middle of the battle.</span>
-                        </div>
-                        <div class="stat">
-                            <strong>Built for spectacle</strong>
-                            <span>Missile strikes, EMP blasts, drones, heavy weapons, and battlefield-shifting powers.</span>
-                        </div>
-                        <div class="stat">
-                            <strong>True command line</strong>
-                            <span>Runs in a real console window with live action rendered through characters and color.</span>
-                        </div>
+                    <div class="stat">
+                        <strong>Command or fight</strong>
+                        <span>Lead armies from above or possess any fighter and join the battle yourself.</span>
                     </div>
+                    <div class="stat">
+                        <strong>Sandbox battles</strong>
+                        <span>Mix armies, weapons, items, maps, and special characters to create endless scenarios.</span>
+                    </div>
+                    <div class="stat">
+                        <strong>Terminal-powered warfare</strong>
+                        <span>Every battle is rendered live using nothing but characters, color, and pure command-line spectacle.</span>
+                    </div>
+                </div>
                 </div>
             </div>
         </section>
@@ -631,112 +665,52 @@
                     <p>See the terminal battlefield in motion, from the command view to front-line combat and screen-filling special weapons.</p>
                 </div>
                 <div class="trailer-frame">
-                    <iframe width="1394" height="784" src="https://www.youtube.com/embed/TmueF5Qglo0" title="CLAWS Trailer" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/dLiCgo47mPs?si=ftzSrGnmZhR__tNO" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
             </div>
         </section>
 
-        <section class="section alt" id="battlefield">
-            <div class="section-inner">
-                <div class="section-heading">
-                    <h2>Large-scale battles with real control</h2>
-                    <p>Shift the tide of battle in real time, stack devastating systems, and build encounters that feel strategic from a distance and personal up close.</p>
-                </div>
-                <div class="showcase">
-                    <figure class="showcase-card primary">
-                        <img src="content/Capsule-920x430.png" alt="CLAWS key art showing opposing factions surrounding the CLAWS logo">
-                        <figcaption class="showcase-caption">
-                            <strong>Iconic combatants and explosive contrast</strong>
-                            <span>Legendary public-domain-inspired characters, advanced weapons, and a battlefield split between cold precision and raw destruction.</span>
-                        </figcaption>
-                    </figure>
-                    <figure class="showcase-card secondary">
-                        <img src="content/Capsule-600X900.png" alt="CLAWS vertical key art">
-                        <figcaption class="showcase-caption">
-                            <strong>Ready for store and press placement</strong>
-                            <span>Vertical key art complements the hero scene without breaking the dark visual treatment.</span>
-                        </figcaption>
-                    </figure>
-                </div>
-            </div>
-        </section>
+       <section class="section" id="features">
+    <div class="section-inner">
+        <div class="section-heading">
+            <h2>Create battles that should never exist</h2>
+            <p>Recreate history, invent impossible matchups, or unleash complete chaos. CLAWS is a sandbox where every battle is simulated in real time and every outcome is earned on the battlefield.</p>
+        </div>
 
-        <section class="section" id="features">
-            <div class="section-inner">
-                <div class="section-heading">
-                    <h2>Take control of the chaos</h2>
-                    <p>Seeded from the Steam description, this page focuses the public pitch around tactical control, escalating systems, and the unusual terminal-native presentation.</p>
-                </div>
-                <div class="feature-grid">
-                    <article class="feature">
-                        <h3>Legendary characters</h3>
-                        <p>Battle alongside iconic public-domain-inspired figures, each built around signature abilities, strengths, and playstyles.</p>
-                    </article>
-                    <article class="feature">
-                        <h3>Weapons and power systems</h3>
-                        <p>Turrets, missile strikes, EMP blasts, drones, and devastating interventions designed for spectacle and battlefield control.</p>
-                    </article>
-                    <article class="feature">
-                        <h3>Mastery progression</h3>
-                        <p>Repeated use sharpens your favorite weapons and abilities, increasing effectiveness, speed, and impact over time.</p>
-                    </article>
-                    <article class="feature">
-                        <h3>Watch Mode</h3>
-                        <p>Observe the battlefield from above, intervene whenever you want, and create cinematic moments of destruction in real time.</p>
-                    </article>
-                    <article class="feature">
-                        <h3>Built-in units and maps</h3>
-                        <p>Jump into curated encounters with pre-built units, battle configurations, and maps tuned for different strategies and scenarios.</p>
-                    </article>
-                    <article class="feature">
-                        <h3>Command-line identity</h3>
-                        <p>CLAWS does not imitate retro visuals from a distance. It runs directly in a console window and pushes the terminal as the actual battlefield.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
+        <div class="feature-grid">
+            <article class="feature">
+                <h3>Historical and fictional battles</h3>
+                <p>Send 300 Spartans against 10,000 Persians, stage an Old West showdown between outlaws and lawmen, or defend a city from a zombie outbreak.</p>
+            </article>
 
-        <section class="section alt" id="terminal">
-            <div class="section-inner">
-                <div class="section-heading">
-                    <h2>Built for the terminal</h2>
-                    <p>Every battle is rendered live using text and color. No traditional graphics engine. No fake shell skin. The command line itself becomes the arena.</p>
-                </div>
-                <div class="columns">
-                    <article class="copy-panel">
-                        <h3>What that means in play</h3>
-                        <ul>
-                            <li>Real-time action rendered entirely with characters and color.</li>
-                            <li>Optimized for speed, scale, and clarity in a text-based environment.</li>
-                            <li>Designed for players who want tactical oversight without losing the energy of direct combat.</li>
-                        </ul>
-                    </article>
-                    <article class="copy-panel">
-                        <h3>What you can do with it</h3>
-                        <ul>
-                            <li>Command units and shift formations as the fight unfolds.</li>
-                            <li>Deploy high-impact systems that instantly reshape the battlefield.</li>
-                            <li>Swap between god-level intervention and front-line execution whenever the moment demands it.</li>
-                        </ul>
-                    </article>
-                </div>
-            </div>
-        </section>
+            <article class="feature">
+                <h3>Command or possess</h3>
+                <p>Lead armies from above, issue orders across the battlefield, or jump directly into any fighter and take control yourself.</p>
+            </article>
 
-        <section class="closing">
-            <div class="section-inner">
-                <div class="section-heading">
-                    <h2>Fast, chaotic, and unexpectedly cinematic</h2>
-                    <p>CLAWS is for players who want large-scale combat, direct control, and a battlefield that feels unlike anything built around a traditional rendering pipeline.</p>
-                </div>
-                <div class="cta-row" style="justify-content:center;">
-                    <a class="button" href="demo/">Play Demo</a>
-                    <a class="button" href="https://store.steampowered.com/app/4575980" target="_blank" rel="noreferrer">Wishlist on Steam</a>
-                    <a class="button-secondary" href="https://www.youtube.com/@playclaws" target="_blank" rel="noreferrer">YouTube</a>
-                    <a class="button-secondary" href="https://x.com/ClawsGame" target="_blank" rel="noreferrer">X</a>
-                </div>
-            </div>
-        </section>
+            <article class="feature">
+                <h3>Legendary characters</h3>
+                <p>Recruit powerful figures such as Zeus, Thor, King Arthur, Medusa, Dracula, and Frankenstein's Monster, each with unique abilities and battlefield impact.</p>
+            </article>
+
+            <article class="feature">
+                <h3>Weapons that change everything</h3>
+                <p>Deploy missile strikes, drones, EMP blasts, automated defenses, and other powerful tools capable of turning the tide of battle instantly.</p>
+            </article>
+
+            <article class="feature">
+                <h3>Emergent stories</h3>
+                <p>Watch armies adapt, heroes clash, defenses collapse, and unlikely victories emerge naturally from the simulation.</p>
+            </article>
+
+            <article class="feature">
+                <h3>A real command-line game</h3>
+                <p>Not pixel art. Not a terminal theme. CLAWS renders live battles directly through characters and color, transforming the command line into a living battlefield.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
     </main>
 
     <footer class="footer">
@@ -745,5 +719,74 @@
             <a href="Privacy.html">Privacy Policy</a>
         </div>
     </footer>
+    <script>
+        (function () {
+            const incomingKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+            const pageParams = new URLSearchParams(window.location.search);
+            const incoming = {};
+
+            for (const key of incomingKeys) {
+                const value = pageParams.get(key);
+                if (value) {
+                    incoming[key] = value;
+                }
+            }
+
+            const hasIncomingUtm = Object.keys(incoming).length > 0;
+
+            const demoDefaults = {
+                utm_source: "github_pages",
+                utm_medium: "referral",
+                utm_campaign: "claws_demo"
+            };
+
+            const steamDefaults = {
+                utm_source: "github_pages",
+                utm_medium: "referral",
+                utm_campaign: "claws_steam"
+            };
+
+            function applyDefaults(params, defaults) {
+                for (const [key, value] of Object.entries(defaults)) {
+                    if (!params.has(key)) {
+                        params.set(key, value);
+                    }
+                }
+            }
+
+            function decorateLinks(selector, defaults, includeIncomingForSteam) {
+                document.querySelectorAll(selector).forEach((link) => {
+                    const resolved = new URL(link.getAttribute("href"), window.location.href);
+                    const params = resolved.searchParams;
+
+                    applyDefaults(params, defaults);
+
+                    if (includeIncomingForSteam && hasIncomingUtm) {
+                        for (const key of incomingKeys) {
+                            if (incoming[key]) {
+                                params.set("gh_" + key, incoming[key]);
+                            }
+                        }
+
+                        const upstreamSummary = incomingKeys
+                            .filter((key) => incoming[key])
+                            .map((key) => key.replace("utm_", "") + "=" + incoming[key])
+                            .join("|");
+
+                        if (upstreamSummary) {
+                            const existingContent = params.get("utm_content");
+                            const viaGithubPages = "via_github_pages:" + upstreamSummary;
+                            params.set("utm_content", existingContent ? existingContent + ";" + viaGithubPages : viaGithubPages);
+                        }
+                    }
+
+                    link.setAttribute("href", resolved.toString());
+                });
+            }
+
+            decorateLinks('a[href^="demo/"]', demoDefaults, false);
+            decorateLinks('a[href^="https://store.steampowered.com/app/4575980"]', steamDefaults, true);
+        })();
+    </script>
 </body>
 </html>
